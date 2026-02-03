@@ -4,6 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { CheckCircle2, ArrowRight } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { sendConsultationEmail } from "@/lib/emailService";
 
 const benefits = [
   "Free feasibility analysis—no obligations",
@@ -41,18 +42,24 @@ const Consultation = () => {
 
     setIsSubmitting(true);
     
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    
-    toast.success("Thank you! I'll get back to you within 24 hours.");
-    setFormData({
-      name: "",
-      email: "",
-      company: "",
-      currentSystem: "",
-      requirements: "",
-    });
-    setIsSubmitting(false);
+    try {
+      // Send email using EmailJS
+      await sendConsultationEmail(formData);
+      
+      toast.success("Thank you! I'll get back to you within 24 hours.");
+      setFormData({
+        name: "",
+        email: "",
+        company: "",
+        currentSystem: "",
+        requirements: "",
+      });
+    } catch (error) {
+      console.error("Failed to send consultation request:", error);
+      toast.error("Failed to send your request. Please try again or contact us directly at jack_li@reallife.sg");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
