@@ -2,9 +2,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { CheckCircle2, ArrowRight } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
 import { sendConsultationEmail } from "@/lib/emailService";
+
+gsap.registerPlugin(useGSAP, ScrollTrigger);
 
 const benefits = [
   "Free feasibility analysis—no obligations",
@@ -62,14 +67,38 @@ const Consultation = () => {
     }
   };
 
+  const sectionRef = useRef<HTMLElement>(null);
+
+  useGSAP(() => {
+    const mm = gsap.matchMedia();
+    mm.add("(prefers-reduced-motion: no-preference)", () => {
+      // Left side content reveals
+      gsap.fromTo(".consult-left", { x: -40, opacity: 0 }, {
+        x: 0, opacity: 1, duration: 0.9, ease: "power3.out",
+        scrollTrigger: { trigger: ".consult-left", start: "top 75%", once: true }
+      });
+      // Benefit items stagger
+      gsap.fromTo(".consult-benefit", { y: 20, opacity: 0 }, {
+        y: 0, opacity: 1, duration: 0.5, stagger: 0.08, ease: "power3.out",
+        scrollTrigger: { trigger: ".consult-left", start: "top 70%", once: true }
+      });
+      // Form card slides in from the right
+      gsap.fromTo(".consult-form", { x: 40, opacity: 0 }, {
+        x: 0, opacity: 1, duration: 0.9, ease: "power3.out",
+        scrollTrigger: { trigger: ".consult-form", start: "top 75%", once: true }
+      });
+    });
+    return () => mm.revert();
+  }, { scope: sectionRef });
+
   return (
-    <section id="consultation" className="py-24 relative">
+    <section ref={sectionRef} id="consultation" className="py-24 relative">
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-accent/5 to-transparent" />
       
       <div className="container mx-auto px-6 relative z-10">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           {/* Left Side - Benefits */}
-          <div>
+          <div className="consult-left">
             <span className="text-accent font-semibold text-sm uppercase tracking-wider mb-4 block">
               Free Consultation
             </span>
@@ -85,7 +114,7 @@ const Consultation = () => {
 
             <ul className="space-y-4">
               {benefits.map((benefit) => (
-                <li key={benefit} className="flex items-start gap-3">
+                <li key={benefit} className="consult-benefit flex items-start gap-3">
                   <CheckCircle2 className="w-6 h-6 text-primary flex-shrink-0 mt-0.5" />
                   <span className="text-foreground">{benefit}</span>
                 </li>
@@ -94,7 +123,7 @@ const Consultation = () => {
           </div>
 
           {/* Right Side - Form */}
-          <div className="glass-card p-8 md:p-10 rounded-2xl glow-effect">
+          <div className="consult-form glass-card p-8 md:p-10 rounded-2xl glow-effect">
             <h3 className="text-2xl font-bold mb-6">Request Free Analysis</h3>
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="grid md:grid-cols-2 gap-5">
