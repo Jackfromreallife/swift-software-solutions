@@ -1,4 +1,8 @@
+import { useLang } from "@/lib/i18n";
+
 const Footer = () => {
+  const { dict } = useLang();
+
   return (
     <footer className="py-12 border-t border-border/50">
       <div className="container mx-auto px-6">
@@ -12,21 +16,21 @@ const Footer = () => {
 
           <nav className="flex items-center gap-8">
             <a href="#services" className="text-muted-foreground hover:text-foreground transition-colors text-sm">
-              Services
+              {dict.footer.services}
             </a>
             <a href="#process" className="text-muted-foreground hover:text-foreground transition-colors text-sm">
-              Process
+              {dict.footer.process}
             </a>
             <a href="#consultation" className="text-muted-foreground hover:text-foreground transition-colors text-sm">
-              Consultation
+              {dict.footer.consultation}
             </a>
             <a href="#contact" className="text-muted-foreground hover:text-foreground transition-colors text-sm">
-              Contact
+              {dict.footer.contact}
             </a>
           </nav>
 
           <p className="text-muted-foreground text-sm">
-            © {new Date().getFullYear()} AgentAppDev. All rights reserved.
+            © {new Date().getFullYear()} AgentAppDev. {dict.footer.rights}
           </p>
         </div>
       </div>

@@ -3,11 +3,13 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Zap, Database, RefreshCw } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+import { useLang } from "@/lib/i18n";
 
 gsap.registerPlugin(useGSAP);
 
 const Hero = () => {
   const sectionRef = useRef<HTMLElement>(null);
+  const { dict } = useLang();
 
   useGSAP(() => {
     const mm = gsap.matchMedia();
@@ -42,58 +44,53 @@ const Hero = () => {
           {/* Badge */}
           <div className="hero-badge inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card mb-8">
             <Zap className="w-4 h-4 text-primary" />
-            <span className="text-sm text-muted-foreground">AI-Powered Development</span>
+            <span className="text-sm text-muted-foreground">{dict.hero.badge}</span>
           </div>
 
           {/* Main Headline */}
           <h1 className="hero-headline text-4xl md:text-6xl lg:text-7xl font-extrabold leading-tight mb-6 text-balance">
-            Modernize Your{" "}
-            <span className="gradient-text">Legacy Software</span>{" "}
-            in Days, Not Months
+            {dict.hero.titleBefore}{" "}
+            <span className="gradient-text">{dict.hero.titleHighlight}</span>{" "}
+            {dict.hero.titleAfter}
           </h1>
 
           {/* Subheadline */}
           <p className="hero-sub text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 text-balance">
-            Rebuild aging applications with AI-powered tools. Migrate data to modern databases like MongoDB.{" "}
-            Get a working prototype in <span className="text-foreground font-semibold">1-3 working days</span>.
+            {dict.hero.subBefore}{" "}
+            <span className="text-foreground font-semibold">{dict.hero.subHighlight}</span>
+            {dict.hero.subAfter}
           </p>
 
           {/* CTA Buttons */}
           <div className="hero-cta flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
             <Button variant="hero" size="xl" asChild>
               <a href="#consultation">
-                Free Consultation
+                {dict.hero.cta1}
                 <ArrowRight className="w-5 h-5" />
               </a>
             </Button>
             <Button variant="heroOutline" size="xl" asChild>
-              <a href="#process">See How It Works</a>
+              <a href="#process">{dict.hero.cta2}</a>
             </Button>
           </div>
 
           {/* Quick Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="hero-stat glass-card p-6 rounded-xl">
-              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 mx-auto">
-                <Zap className="w-6 h-6 text-primary" />
+            {dict.hero.stats.map((stat, i) => (
+              <div key={i} className="hero-stat glass-card p-6 rounded-xl">
+                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 mx-auto">
+                  {i === 0 ? (
+                    <Zap className="w-6 h-6 text-primary" />
+                  ) : i === 1 ? (
+                    <Database className="w-6 h-6 text-primary" />
+                  ) : (
+                    <RefreshCw className="w-6 h-6 text-primary" />
+                  )}
+                </div>
+                <h3 className="text-3xl font-bold mb-1">{stat.value}</h3>
+                <p className="text-muted-foreground text-sm">{stat.label}</p>
               </div>
-              <h3 className="text-3xl font-bold mb-1">1-3 Days</h3>
-              <p className="text-muted-foreground text-sm">Per Department Module</p>
-            </div>
-            <div className="hero-stat glass-card p-6 rounded-xl">
-              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 mx-auto">
-                <Database className="w-6 h-6 text-primary" />
-              </div>
-              <h3 className="text-3xl font-bold mb-1">100%</h3>
-              <p className="text-muted-foreground text-sm">Data Migration Success</p>
-            </div>
-            <div className="hero-stat glass-card p-6 rounded-xl">
-              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 mx-auto">
-                <RefreshCw className="w-6 h-6 text-primary" />
-              </div>
-              <h3 className="text-3xl font-bold mb-1">AI-Powered</h3>
-              <p className="text-muted-foreground text-sm">Modern Development</p>
-            </div>
+            ))}
           </div>
         </div>
       </div>

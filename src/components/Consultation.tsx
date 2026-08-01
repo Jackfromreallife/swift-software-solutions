@@ -9,17 +9,13 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { sendConsultationEmail } from "@/lib/emailService";
 
+import { useLang } from "@/lib/i18n";
+
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
-const benefits = [
-  "Free feasibility analysis—no obligations",
-  "No database credentials required initially",
-  "Understand migration complexity upfront",
-  "Get a realistic timeline and cost estimate",
-  "See examples of similar transformations",
-];
-
 const Consultation = () => {
+  const { dict } = useLang();
+  const benefits = dict.consultation.benefits;
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -34,14 +30,14 @@ const Consultation = () => {
     
     // Basic validation
     if (!formData.name.trim() || !formData.email.trim() || !formData.requirements.trim()) {
-      toast.error("Please fill in all required fields");
+      toast.error(dict.consultation.errorRequired);
       return;
     }
 
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      toast.error("Please enter a valid email address");
+      toast.error(dict.consultation.errorEmail);
       return;
     }
 
@@ -51,7 +47,7 @@ const Consultation = () => {
       // Send email using EmailJS
       await sendConsultationEmail(formData);
       
-      toast.success("Thank you! I'll get back to you within 24 hours.");
+      toast.success(dict.consultation.toastSuccess);
       setFormData({
         name: "",
         email: "",
@@ -61,7 +57,7 @@ const Consultation = () => {
       });
     } catch (error) {
       console.error("Failed to send consultation request:", error);
-      toast.error("Failed to send your request. Please try again or contact us directly at jack_li@reallife.sg");
+      toast.error(dict.consultation.toastError);
     } finally {
       setIsSubmitting(false);
     }
@@ -100,16 +96,14 @@ const Consultation = () => {
           {/* Left Side - Benefits */}
           <div className="consult-left">
             <span className="text-accent font-semibold text-sm uppercase tracking-wider mb-4 block">
-              Free Consultation
+              {dict.consultation.label}
             </span>
             <h2 className="text-3xl md:text-5xl font-bold mb-6">
-              Let's Analyze Your{" "}
-              <span className="gradient-text">Legacy System</span>
+              {dict.consultation.titleBefore}{" "}
+              <span className="gradient-text">{dict.consultation.titleHighlight}</span>
             </h2>
             <p className="text-muted-foreground text-lg mb-8 leading-relaxed">
-              Even if you don't have access to database credentials, I can still analyze 
-              your system's feasibility for modernization. Get honest insights before 
-              committing to anything.
+              {dict.consultation.subtitle}
             </p>
 
             <ul className="space-y-4">
@@ -124,16 +118,16 @@ const Consultation = () => {
 
           {/* Right Side - Form */}
           <div className="consult-form glass-card p-8 md:p-10 rounded-2xl glow-effect">
-            <h3 className="text-2xl font-bold mb-6">Request Free Analysis</h3>
+            <h3 className="text-2xl font-bold mb-6">{dict.consultation.formTitle}</h3>
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="grid md:grid-cols-2 gap-5">
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium mb-2">
-                    Your Name <span className="text-accent">*</span>
+                    {dict.consultation.name} <span className="text-accent">*</span>
                   </label>
                   <Input
                     id="name"
-                    placeholder="John Doe"
+                    placeholder={dict.consultation.placeholders.name}
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className="bg-secondary/50 border-border/50 focus:border-primary"
@@ -143,12 +137,12 @@ const Consultation = () => {
                 </div>
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium mb-2">
-                    Email Address <span className="text-accent">*</span>
+                    {dict.consultation.email} <span className="text-accent">*</span>
                   </label>
                   <Input
                     id="email"
                     type="email"
-                    placeholder="john@company.com"
+                    placeholder={dict.consultation.placeholders.email}
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     className="bg-secondary/50 border-border/50 focus:border-primary"
@@ -161,11 +155,11 @@ const Consultation = () => {
               <div className="grid md:grid-cols-2 gap-5">
                 <div>
                   <label htmlFor="company" className="block text-sm font-medium mb-2">
-                    Company Name
+                    {dict.consultation.company}
                   </label>
                   <Input
                     id="company"
-                    placeholder="Acme Inc."
+                    placeholder={dict.consultation.placeholders.company}
                     value={formData.company}
                     onChange={(e) => setFormData({ ...formData, company: e.target.value })}
                     className="bg-secondary/50 border-border/50 focus:border-primary"
@@ -174,11 +168,11 @@ const Consultation = () => {
                 </div>
                 <div>
                   <label htmlFor="currentSystem" className="block text-sm font-medium mb-2">
-                    Current System Type
+                    {dict.consultation.currentSystem}
                   </label>
                   <Input
                     id="currentSystem"
-                    placeholder="e.g., Access, Excel, Old ERP"
+                    placeholder={dict.consultation.placeholders.currentSystem}
                     value={formData.currentSystem}
                     onChange={(e) => setFormData({ ...formData, currentSystem: e.target.value })}
                     className="bg-secondary/50 border-border/50 focus:border-primary"
@@ -189,11 +183,11 @@ const Consultation = () => {
 
               <div>
                 <label htmlFor="requirements" className="block text-sm font-medium mb-2">
-                  Tell Me About Your Needs <span className="text-accent">*</span>
+                  {dict.consultation.requirements} <span className="text-accent">*</span>
                 </label>
                 <Textarea
                   id="requirements"
-                  placeholder="Describe your current system, what problems you're facing, and what you'd like to achieve..."
+                  placeholder={dict.consultation.placeholders.requirements}
                   value={formData.requirements}
                   onChange={(e) => setFormData({ ...formData, requirements: e.target.value })}
                   className="bg-secondary/50 border-border/50 focus:border-primary min-h-[120px]"
@@ -210,17 +204,17 @@ const Consultation = () => {
                 disabled={isSubmitting}
               >
                 {isSubmitting ? (
-                  "Submitting..."
+                  dict.consultation.submitting
                 ) : (
                   <>
-                    Get Free Analysis
+                    {dict.consultation.submit}
                     <ArrowRight className="w-5 h-5" />
                   </>
                 )}
               </Button>
 
               <p className="text-sm text-muted-foreground text-center">
-                No spam. No obligations. Just honest analysis.
+                {dict.consultation.finePrint}
               </p>
             </form>
           </div>

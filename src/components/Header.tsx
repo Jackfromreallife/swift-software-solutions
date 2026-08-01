@@ -1,15 +1,17 @@
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Languages } from "lucide-react";
 import { useState } from "react";
+import { useLang } from "@/lib/i18n";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { lang, setLang, dict } = useLang();
 
   const navLinks = [
-    { href: "#services", label: "Services" },
-    { href: "#process", label: "Process" },
-    { href: "#consultation", label: "Free Consultation" },
-    { href: "#contact", label: "Contact" },
+    { href: "#services", label: dict.header.nav.services },
+    { href: "#process", label: dict.header.nav.process },
+    { href: "#consultation", label: dict.header.nav.consultation },
+    { href: "#contact", label: dict.header.nav.contact },
   ];
 
   return (
@@ -37,8 +39,17 @@ const Header = () => {
           </nav>
 
           <div className="hidden md:flex items-center gap-4">
+            {/* Language Toggle */}
+            <button
+              onClick={() => setLang(lang === "en" ? "zh" : "en")}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-full border border-border/40 text-sm font-semibold text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors duration-300"
+              aria-label="Switch language"
+            >
+              <Languages size={16} />
+              {lang === "en" ? "中文" : "EN"}
+            </button>
             <Button variant="hero" size="lg" asChild>
-              <a href="#consultation">Get Started</a>
+              <a href="#consultation">{dict.header.getStarted}</a>
             </Button>
           </div>
 
@@ -46,7 +57,7 @@ const Header = () => {
           <button
             className="md:hidden p-2"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            aria-label="Toggle menu"
+            aria-label={dict.header.toggleMenu}
           >
             {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -66,9 +77,23 @@ const Header = () => {
                   {link.label}
                 </a>
               ))}
-              <Button variant="hero" size="lg" className="mt-4" asChild>
-                <a href="#consultation">Get Started</a>
-              </Button>
+              <div className="flex items-center gap-3">
+                <Button variant="hero" size="lg" className="mt-4 flex-1" asChild>
+                  <a href="#consultation" onClick={() => setIsMenuOpen(false)}>
+                    {dict.header.getStarted}
+                  </a>
+                </Button>
+                <button
+                  onClick={() => {
+                    setLang(lang === "en" ? "zh" : "en");
+                    setIsMenuOpen(false);
+                  }}
+                  className="mt-4 flex items-center gap-1.5 px-4 py-2.5 rounded-full border border-border/40 text-sm font-semibold text-muted-foreground"
+                >
+                  <Languages size={16} />
+                  {lang === "en" ? "中文" : "EN"}
+                </button>
+              </div>
             </div>
           </nav>
         )}

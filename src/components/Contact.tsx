@@ -3,11 +3,13 @@ import { Mail, MessageCircle, MapPin } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
+import { useLang } from "@/lib/i18n";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
 const Contact = () => {
   const sectionRef = useRef<HTMLElement>(null);
+  const { dict } = useLang();
 
   useGSAP(() => {
     const mm = gsap.matchMedia();
@@ -31,13 +33,14 @@ const Contact = () => {
       <div className="container mx-auto px-6 relative z-10">
         <div className="contact-head text-center mb-16">
           <span className="text-primary font-semibold text-sm uppercase tracking-wider mb-4 block">
-            Get In Touch
+            {dict.contact.label}
           </span>
           <h2 className="text-3xl md:text-5xl font-bold mb-6">
-            Ready to <span className="gradient-text">Modernize</span>?
+            {dict.contact.titleBefore} <span className="gradient-text">{dict.contact.titleHighlight}</span>
+            {dict.contact.titleAfter}
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-            Have questions? Want to discuss your project? I'm here to help.
+            {dict.contact.subtitle}
           </p>
         </div>
 
@@ -49,7 +52,7 @@ const Contact = () => {
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-transparent flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
               <Mail className="w-8 h-8 text-primary" />
             </div>
-            <h3 className="text-xl font-bold mb-2">Email</h3>
+            <h3 className="text-xl font-bold mb-2">{dict.contact.email}</h3>
             <p className="text-muted-foreground">jack_li@reallife.sg</p>
           </a>
 
@@ -60,16 +63,16 @@ const Contact = () => {
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-transparent flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
               <MessageCircle className="w-8 h-8 text-primary" />
             </div>
-            <h3 className="text-xl font-bold mb-2">Consultation</h3>
-            <p className="text-muted-foreground">Book a free call</p>
+            <h3 className="text-xl font-bold mb-2">{dict.contact.consultation}</h3>
+            <p className="text-muted-foreground">{dict.contact.bookCall}</p>
           </a>
 
           <div className="contact-card glass-card p-8 rounded-xl text-center hover:border-primary/30 transition-all duration-500 group hover:-translate-y-2">
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-transparent flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
               <MapPin className="w-8 h-8 text-primary" />
             </div>
-            <h3 className="text-xl font-bold mb-2">Location</h3>
-            <p className="text-muted-foreground">Remote / Worldwide</p>
+            <h3 className="text-xl font-bold mb-2">{dict.contact.location}</h3>
+            <p className="text-muted-foreground">{dict.contact.remote}</p>
           </div>
         </div>
       </div>
