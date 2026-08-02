@@ -13,6 +13,10 @@ export default defineConfig(({ mode }) => ({
       overlay: false,
     },
   },
+  preview: {
+    // Allow access via Tailscale Serve (https://<machine>.<tailnet>.ts.net) and any LAN host
+    allowedHosts: [".ts.net", "localhost", "127.0.0.1"],
+  },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {
     alias: {
