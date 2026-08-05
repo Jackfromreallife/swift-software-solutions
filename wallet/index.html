@@ -22,9 +22,19 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   button{font-family:inherit;cursor:pointer}
   .wrap{max-width:760px;margin:0 auto;padding:20px 16px 48px}
 
-  header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
-  .brand{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.18em;
-    text-transform:uppercase;color:var(--jade)}
+  header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
+  .brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+  .mark{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#0E7C6B,#23A08A);
+    color:#fff;display:flex;align-items:center;justify-content:center;flex:0 0 auto;
+    font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:19px}
+  .brand-tx{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:var(--ink);
+    line-height:1.15}
+  .brand-tx em{display:block;font-style:normal;font-family:'Space Mono',monospace;
+    font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--jade)}
+  .head-actions{display:flex;align-items:center;gap:8px}
+  .enq{font-family:'Space Mono',monospace;font-size:11px;color:var(--jade);
+    border:1px solid var(--jade);border-radius:9px;padding:8px 11px;text-decoration:none;white-space:nowrap}
+  .enq:hover{background:rgba(14,124,107,.08)}
   h1{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:26px;
     letter-spacing:-.02em;margin-bottom:18px}
   .add{background:var(--jade);color:#fff;border:none;border-radius:10px;
@@ -100,7 +110,9 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     font-family:'Space Mono',monospace;letter-spacing:.06em;text-decoration:underline}
   .hint{text-align:center;font-size:11px;color:var(--muted);margin-top:10px}
   .madeby{text-align:center;font-size:10px;color:#A9ADA4;margin-top:16px;
-    font-family:'Space Mono',monospace;letter-spacing:.08em;text-transform:uppercase}
+    font-family:'Space Mono',monospace;letter-spacing:.02em}
+  .madeby a{color:var(--jade);text-decoration:none}
+  .madeby a:hover{text-decoration:underline}
 
   .scrim{position:fixed;inset:0;background:rgba(20,24,31,.45);display:none;z-index:50}
   .scrim.show{display:block}
@@ -157,8 +169,14 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
 <body>
 <div class="wrap">
   <header>
-    <div class="brand">QR Card Wallet</div>
-    <button class="add" id="addBtn">＋ Add card</button>
+    <a class="brand" href="https://www.reallife.sg" title="Back to reallife.sg — Ecomwin">
+      <span class="mark">E</span>
+      <span class="brand-tx">Ecomwin<em>QR Card Wallet</em></span>
+    </a>
+    <div class="head-actions">
+      <a class="enq" href="mailto:ecomwin.admin@gmail.com?subject=QR%20name%20cards%20for%20our%20company&body=Hi%20Ecomwin%2C%0A%0AWe%20would%20like%20to%20offer%20QR%20name%20cards%20to%20our%20team.%20Please%20share%20more%20details.">Sales enquiry</a>
+      <button class="add" id="addBtn">＋ Add card</button>
+    </div>
   </header>
   <h1>My cards</h1>
 
@@ -171,7 +189,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     <input type="file" id="importFile" accept="application/json" class="hidden">
   </div>
   <p class="hint" id="storeHint"></p>
-  <p class="madeby">Made by Ecomwin · reallife.sg</p>
+  <p class="madeby">Made by <a href="https://www.reallife.sg">Ecomwin</a> · <a href="https://www.reallife.sg">reallife.sg</a> · Need this for your team? <a href="mailto:ecomwin.admin@gmail.com?subject=QR%20name%20card%20for%20our%20company">Contact us</a></p>
 </div>
 
 <!-- EDITOR -->
