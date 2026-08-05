@@ -38,36 +38,49 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     border-radius:20px;padding:26px 22px 20px;text-align:center;position:relative;overflow:hidden}
   .slide::after{content:"";position:absolute;right:-50px;top:-50px;width:160px;height:160px;
     border-radius:50%;background:radial-gradient(circle,var(--jade),transparent 70%);opacity:.45}
-  .qrframe{background:#fff;border-radius:16px;padding:16px;display:inline-block;
-    position:relative;z-index:1}
-  .qrframe canvas{display:block;width:230px;height:230px;border-radius:4px}
+  /* physical name-card layout (landscape, ~1.7:1 like a real 90x54mm card) */
+  .card{background:#fff;border-radius:14px;box-shadow:0 12px 32px rgba(0,0,0,.3);
+    padding:16px 18px;max-width:420px;margin:0 auto;position:relative;z-index:1;
+    display:flex;flex-direction:column;aspect-ratio:1.7/1;text-align:left;overflow:hidden}
+  .card::after{content:"";position:absolute;right:-34px;top:-34px;width:110px;height:110px;
+    border-radius:50%;background:radial-gradient(circle,rgba(14,124,107,.10),transparent 70%)}
+  .c-top{display:flex;justify-content:space-between;align-items:flex-start}
+  .c-co{display:flex;align-items:center;gap:8px;min-width:0}
+  .c-logo{height:22px;max-width:90px;object-fit:contain}
+  .c-co span{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;
+    letter-spacing:.14em;color:#0E7C6B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .c-av{width:44px;height:44px;border-radius:50%;overflow:hidden;flex-shrink:0;
+    border:1.5px solid #EDE9E0;background:#fff}
+  .c-av img{width:100%;height:100%;object-fit:cover}
+  .c-av.ph{background:linear-gradient(135deg,#0E7C6B,#23A08A);border:none;color:#fff;
+    display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;
+    font-size:15px;font-weight:700}
+  .c-name{font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:700;color:#14181F;
+    margin-top:10px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .c-title{font-size:11.5px;color:#6B6F76;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .c-line{height:1px;background:#EFEBE3;margin:9px 0 7px}
+  .c-bottom{display:flex;justify-content:space-between;align-items:flex-end;flex:1;gap:10px}
+  .c-contacts{font-family:'Space Mono',monospace;font-size:9.5px;color:#4A4F57;
+    line-height:1.75;letter-spacing:.02em;min-width:0}
+  .c-r1,.c-r2{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px}
+  .c-qr{width:74px;height:74px;flex-shrink:0;border:1px solid #EFEBE3;border-radius:8px;
+    padding:4px;background:#fff}
+  .c-qr canvas{width:100%;height:100%;display:block}
   .badge{display:inline-flex;align-items:center;gap:5px;background:rgba(14,124,107,.18);
     color:#7FD8C6;border:1px solid rgba(14,124,107,.35);border-radius:99px;
     padding:4px 10px;font-family:'Space Mono',monospace;font-size:10px;
-    letter-spacing:.08em;text-transform:uppercase;margin-top:10px;position:relative;z-index:1}
+    letter-spacing:.08em;text-transform:uppercase;margin-top:12px;position:relative;z-index:1}
   .badge.warn{background:rgba(201,138,27,.12);color:#E4B45C;border-color:rgba(201,138,27,.3)}
-  .s-org{margin-top:16px;font-family:'Space Grotesk',sans-serif;font-weight:700;
-    font-size:18px;position:relative;z-index:1}
-  .s-name{color:#B7BCC4;font-size:13px;margin-top:2px;position:relative;z-index:1}
-  .s-actions{display:flex;gap:10px;justify-content:center;margin-top:18px;
+  .s-actions{display:flex;gap:10px;justify-content:center;margin-top:16px;
     position:relative;z-index:1}
   .s-actions button{background:rgba(255,255,255,.08);color:#E7E9ED;border:1px solid rgba(255,255,255,.14);
     border-radius:9px;padding:8px 12px;font-size:12px;font-family:'Space Mono',monospace;letter-spacing:.04em}
   .s-actions button:hover{background:rgba(255,255,255,.16)}
-  /* avatar layout variant */
-  .s-top{display:flex;align-items:center;gap:14px;text-align:left;margin-bottom:18px;position:relative;z-index:1}
-  .av{width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.22);flex-shrink:0;background:#fff}
-  .av-ph{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#0E7C6B,#23A08A);color:#fff;
-    font-size:22px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;letter-spacing:.02em}
-  .s-tx{flex:1;min-width:0}
-  .slide.has-av .s-org{margin-top:0;font-size:15px;color:#C7CBD2}
-  .slide.has-av .s-name{margin-top:0;font-size:16px;color:#fff;font-weight:700}
-  .slide.has-av .qrframe{margin-top:4px}
   .av-prev{border-radius:50%}
   .av-prev img{object-fit:cover;border-radius:50%}
   .hint{font-size:11px;color:var(--muted);margin:6px 0 0;line-height:1.5}
   .tap{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.1em;
-    text-transform:uppercase;color:#7FD8C6;margin-top:14px;position:relative;z-index:1}
+    text-transform:uppercase;color:#7FD8C6;margin-top:12px;position:relative;z-index:1}
 
   .dots{display:flex;gap:7px;justify-content:center;margin-top:14px}
   .dot{width:7px;height:7px;border-radius:50%;background:var(--line);border:none;padding:0}
@@ -243,6 +256,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   function uid(){return 'c'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
   function $(id){return document.getElementById(id);}
   function esc(s){return s.replace(/([\\,;])/g,'\\$1');}
+  function h(s){return String(s==null?'':s).replace(/[&<>"']/g,function(m){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];});}
   function fmtDate(iso){if(!iso)return '';try{var d=new Date(iso);return d.toLocaleString('en-SG',{dateStyle:'medium',timeStyle:'short'});}catch(e){return iso;}}
   function initials(name){
     var parts=(name||'').trim().split(/\s+/);
@@ -325,6 +339,29 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     } else {drawQRFail(canvas,ctx,size);done();}
   }
 
+  /* physical name-card HTML (landscape) */
+  function cardHTML(c){
+    var fn=((c.first||'')+' '+(c.last||'')).trim();
+    var logo=c.logo?'<img class="c-logo" src="'+c.logo+'" alt="">':'';
+    var av='';
+    if(c.avatar)av='<div class="c-av"><img src="'+c.avatar+'" alt=""></div>';
+    else if(c.layout==='avatar')av='<div class="c-av ph">'+h(initials(fn))+'</div>';
+    var l1=[c.mobile,c.work,c.email].filter(Boolean).join('  ·  ');
+    var l2=[(c.web||'').replace(/^https?:\/\//,''),c.addr].filter(Boolean).join('  ·  ');
+    return '<div class="card">'+
+      '<div class="c-top"><div class="c-co">'+logo+'<span>'+h((c.org||'').toUpperCase())+'</span></div>'+av+'</div>'+
+      '<div class="c-name">'+h(fn||c.org||'Contact')+'</div>'+
+      '<div class="c-title">'+h(c.title||'')+'</div>'+
+      '<div class="c-line"></div>'+
+      '<div class="c-bottom">'+
+        '<div class="c-contacts">'+
+          (l1?'<div class="c-r1">'+h(l1)+'</div>':'')+
+          (l2?'<div class="c-r2">'+h(l2)+'</div>':'')+
+        '</div>'+
+        '<div class="c-qr"><canvas></canvas></div>'+
+      '</div></div>';
+  }
+
   function render(){
     var stage=$('stage'),dots=$('dots');
     stage.innerHTML='';dots.innerHTML='';
@@ -337,30 +374,15 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     cards.forEach(function(c,i){
       c=normalize(c);
       var s=document.createElement('div');s.className='slide';
-      var name=((c.first||'')+' '+(c.last||'')).trim();
       var badge=c.verifyCode
         ?'<span class="badge">✓ Ecomwin Verified</span>'
         :'<span class="badge warn">Unregistered — declaration on file</span>';
-      var actions='<div class="s-actions"><button data-act="png">Save PNG</button>'+
+      var actions='<div class="s-actions"><button data-act="png">Save card PNG</button>'+
         '<button data-act="edit">Edit</button><button data-act="del">Delete</button></div>';
-      if(c.layout==='avatar'){
-        s.className='slide has-av';
-        var avHtml=c.avatar
-          ?'<img class="av" src="'+c.avatar+'" alt="'+esc(name)+'">'
-          :'<div class="av-ph">'+initials(name)+'</div>';
-        s.innerHTML='<div class="s-top">'+avHtml+
-          '<div class="s-tx"><div class="s-name">'+(name?name+(c.title?' · '+c.title:''):(c.title||''))+'</div>'+
-          '<div class="s-org">'+(c.org||'(no company)')+'</div></div></div>'+
-          '<div class="qrframe"><canvas></canvas></div>'+badge+
-          '<div class="tap">Tap QR to enlarge for scanning</div>'+actions;
-      } else {
-        s.innerHTML='<div class="qrframe"><canvas></canvas></div>'+badge+
-          '<div class="tap">Tap QR to enlarge for scanning</div>'+
-          '<div class="s-org">'+(c.org||'(no company)')+'</div>'+
-          '<div class="s-name">'+(name?name+(c.title?' · '+c.title:''):(c.title||''))+'</div>'+actions;
-      }
-      renderQR(s.querySelector('canvas'),c,512);
-      s.querySelector('.qrframe').addEventListener('click',function(){openFs(c);});
+      s.innerHTML=cardHTML(c)+badge+
+        '<div class="tap">Tap QR to enlarge for scanning</div>'+actions;
+      renderQR(s.querySelector('.c-qr canvas'),c,168);
+      s.querySelector('.c-qr').addEventListener('click',function(){openFs(c);});
       s.querySelectorAll('[data-act]').forEach(function(b){
         b.addEventListener('click',function(){
           var a=b.getAttribute('data-act');
@@ -384,9 +406,10 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
       var mm=gsap.matchMedia();
       mm.add('(prefers-reduced-motion: no-preference)',function(){
         gsap.from('.slide',{y:28,autoAlpha:0,duration:.55,ease:'power3.out',stagger:.07});
-        gsap.from('.qrframe',{scale:.82,autoAlpha:0,duration:.5,ease:'back.out(1.7)',stagger:.07,delay:.1});
-        gsap.from('.badge',{autoAlpha:0,y:8,duration:.4,stagger:.07,delay:.28});
-        gsap.from('.av, .av-ph',{scale:.4,autoAlpha:0,rotation:-10,duration:.5,ease:'back.out(2)',stagger:.07,delay:.15});
+        gsap.from('.card',{scale:.94,autoAlpha:0,duration:.5,ease:'power2.out',stagger:.07,delay:.08});
+        gsap.from('.c-qr',{scale:.7,autoAlpha:0,duration:.5,ease:'back.out(1.7)',stagger:.07,delay:.2});
+        gsap.from('.badge',{autoAlpha:0,y:8,duration:.4,stagger:.07,delay:.3});
+        gsap.from('.c-av',{scale:.4,autoAlpha:0,rotation:-10,duration:.5,ease:'back.out(2)',stagger:.07,delay:.18});
       });
     }
   }
@@ -404,12 +427,75 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   $('fsClose').addEventListener('click',function(){$('fs').classList.remove('show');});
   $('fs').addEventListener('click',function(e){if(e.target===$('fs'))$('fs').classList.remove('show');});
 
+  /* ---- full name-card PNG export (physical card look, 1020x600 @ 1.7:1) ---- */
+  function loadImg(src){return new Promise(function(res){var i=new Image();i.onload=function(){res(i);};i.onerror=function(){res(null);};i.src=src;});}
+  function renderCardPNG(c,cb){
+    var W=1020,H=600,pad=54;
+    var cv=document.createElement('canvas');cv.width=W;cv.height=H;
+    var ctx=cv.getContext('2d');
+    var fn=((c.first||'')+' '+(c.last||'')).trim()||c.org||'Contact';
+    var qr=document.createElement('canvas');
+    function draw(logoImg,avImg){
+      // paper
+      ctx.fillStyle='#FFFFFF';roundRect(ctx,0,0,W,H,28);ctx.fill();
+      ctx.strokeStyle='#E7E3DA';ctx.lineWidth=2;roundRect(ctx,1,1,W-2,H-2,27);ctx.stroke();
+      // company (logo + name), top-left
+      var coX=pad;
+      if(logoImg){
+        var lh=34;
+        ctx.drawImage(logoImg,pad,pad-17,120,lh);
+        coX=pad+128;
+      }
+      ctx.fillStyle='#0E7C6B';ctx.font='600 26px "Space Grotesk",sans-serif';
+      ctx.textBaseline='alphabetic';ctx.letterSpacing='4px';
+      ctx.fillText((c.org||'').toUpperCase(),coX,pad+22);
+      // avatar top-right
+      if(avImg){
+        var as=110,ax=W-pad-as,ay=pad-24;
+        ctx.save();ctx.beginPath();ctx.arc(ax+as/2,ay+as/2,as/2,0,Math.PI*2);ctx.clip();
+        ctx.drawImage(avImg,ax,ay,as,as);ctx.restore();
+        ctx.strokeStyle='#E7E3DA';ctx.lineWidth=2;ctx.beginPath();ctx.arc(ax+as/2,ay+as/2,as/2,0,Math.PI*2);ctx.stroke();
+      } else if(c.layout==='avatar'){
+        var as=110,ax=W-pad-as,ay=pad-24;
+        ctx.fillStyle='#0E7C6B';ctx.beginPath();ctx.arc(ax+as/2,ay+as/2,as/2,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#fff';ctx.font='700 44px "Space Grotesk",sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+        ctx.fillText(initials(fn),ax+as/2,ay+as/2+2);
+        ctx.textAlign='left';ctx.textBaseline='alphabetic';
+      }
+      // name + title
+      ctx.fillStyle='#14181F';ctx.font='700 46px "Space Grotesk",sans-serif';
+      ctx.fillText(fn,pad,225);
+      ctx.fillStyle='#6B6F76';ctx.font='400 27px "Inter",sans-serif';
+      ctx.fillText(c.title||'',pad,272);
+      // divider
+      ctx.strokeStyle='#EFEBE3';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(pad,340);ctx.lineTo(W-pad,340);ctx.stroke();
+      // contacts (left)
+      var l1=[c.mobile,c.work,c.email].filter(Boolean).join('   ·   ');
+      var l2=[(c.web||'').replace(/^https?:\/\//,''),c.addr].filter(Boolean).join('   ·   ');
+      ctx.fillStyle='#4A4F57';ctx.font='400 23px "Inter",sans-serif';
+      if(l1)ctx.fillText(l1,pad,398);
+      if(l2)ctx.fillText(l2,pad,440);
+      // QR (bottom-right)
+      var qs=196,qx=W-pad-qs,qy=H-pad-qs;
+      ctx.fillStyle='#fff';roundRect(ctx,qx-14,qy-14,qs+28,qs+28,12);ctx.fill();
+      ctx.strokeStyle='#EFEBE3';ctx.lineWidth=2;roundRect(ctx,qx-14,qy-14,qs+28,qs+28,12);ctx.stroke();
+      ctx.drawImage(qr,qx,qy,qs,qs);
+      cb(cv.toDataURL('image/png'));
+    }
+    renderQR(qr,c,220,function(){
+      var jobs=[document.fonts.ready];
+      if(c.logo)jobs.push(loadImg(c.logo));
+      if(c.avatar)jobs.push(loadImg(c.avatar));
+      Promise.all(jobs).then(function(res){
+        draw(res[1]||null,res[2]||null);
+      });
+    });
+  }
   function savePNG(c){
-    var cv=document.createElement('canvas');
-    renderQR(cv,c,1024,function(){
+    renderCardPNG(c,function(url){
       var a=document.createElement('a');
-      a.href=cv.toDataURL('image/png');
-      a.download=(c.org||'card').replace(/[^a-z0-9]+/gi,'-').toLowerCase()+'-qr.png';
+      a.href=url;
+      a.download=(c.org||'card').replace(/[^a-z0-9]+/gi,'-').toLowerCase()+'-namecard.png';
       a.click();
     });
   }
