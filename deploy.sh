@@ -40,4 +40,9 @@ else
 fi
 git checkout main -q
 git branch -D deploy -q
+echo "==> Restoring dependencies (the branch swap removes untracked node_modules)..."
+if [ ! -x node_modules/.bin/vite ]; then
+  npm ci > /dev/null 2>&1 || npm install > /dev/null 2>&1
+  echo "==> node_modules restored."
+fi
 echo "==> Done."
