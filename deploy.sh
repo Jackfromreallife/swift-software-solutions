@@ -1,12 +1,20 @@
 #!/bin/bash
 # Deploy AgentDev site + static subpages (wallet, verify) to gh-pages.
-# Usage: ./deploy.sh
+# Usage: ./deploy.sh   (working tree must be clean)
 set -e
 cd "$(dirname "$0")"
 
 WALLET_SRC="$HOME/Documents/ecomwin/qr-card-wallet-site"
+TMP=$(mktemp -d)
+trap 'rm -rf "$TMP"' EXIT
 
-echo "==> Building site..."
+# 0) Require a clean working tree (avoids checkout aborts)
+if [ -n "$(git status --porcelain)" ]; then
+  echo "ERROR: working tree not clean. Commit or stash changes first."
+  exit 1
+fi
+
+echo "==> Building site (on main)..."
 npm run build
 
 echo "==> Injecting static subpages into dist..."
@@ -14,12 +22,14 @@ rm -rf dist/wallet dist/verify
 cp -r "$WALLET_SRC/wallet" dist/wallet
 cp -r "$WALLET_SRC/verify" dist/verify
 
+echo "==> Staging build output..."
+cp -r dist/. "$TMP/"
+
 echo "==> Syncing gh-pages branch (CNAME preserved)..."
 git fetch origin gh-pages -q
 git checkout -B deploy origin/gh-pages -q
-# keep .git and CNAME; replace everything else
 find . -maxdepth 1 ! -name . ! -name .git ! -name CNAME -exec rm -rf {} +
-cp -r dist/assets dist/favicon.ico dist/index.html dist/placeholder.svg dist/robots.txt dist/wallet dist/verify .
+cp -r "$TMP/." .
 git add -A
 if git diff --cached --quiet; then
   echo "No changes to deploy."
