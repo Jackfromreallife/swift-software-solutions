@@ -403,6 +403,9 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     slider.addEventListener('scroll',function(){
       var i=Math.round(slider.scrollLeft/slider.clientWidth);
       if(i!==current){current=i;updateDots();}
+      stopAuto();
+      clearTimeout(scrollT);
+      scrollT=setTimeout(restartAuto,700);
     });
     goto(Math.min(current,cards.length-1),true);
     if(window.gsap){
@@ -415,9 +418,23 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
         gsap.from('.c-av',{scale:.4,autoAlpha:0,rotation:-10,duration:.5,ease:'back.out(2)',stagger:.07,delay:.18});
       });
     }
+    restartAuto();
   }
   function updateDots(){var ds=$('dots').children;for(var i=0;i<ds.length;i++)ds[i].className='dot'+(i===current?' on':'');}
   function goto(i,instant){current=i;var sl=$('slider');if(sl)sl.scrollTo({left:i*sl.clientWidth,behavior:instant?'auto':'smooth'});updateDots();}
+
+  /* ---- auto-swap: cards rotate every 4.5s, pause on interaction, honour reduced motion ---- */
+  var autoTimer=null,scrollT=null;
+  function autoSwap(){
+    if(cards.length<2)return;
+    if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    autoTimer=setTimeout(function(){
+      goto((current+1)%cards.length);
+      autoSwap();
+    },4500);
+  }
+  function stopAuto(){if(autoTimer){clearTimeout(autoTimer);autoTimer=null;}}
+  function restartAuto(){stopAuto();autoSwap();}
 
   function openFs(c){
     renderQR($('fsCanvas'),c,640);
@@ -425,10 +442,11 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     $('fsOrg').textContent=c.org||'';
     $('fsName').textContent=name+(c.title?' · '+c.title:'');
     $('fs').classList.add('show');
+    stopAuto();
     if(window.gsap)gsap.from('#fsCanvas',{scale:.75,autoAlpha:0,duration:.4,ease:'back.out(1.6)'});
   }
-  $('fsClose').addEventListener('click',function(){$('fs').classList.remove('show');});
-  $('fs').addEventListener('click',function(e){if(e.target===$('fs'))$('fs').classList.remove('show');});
+  $('fsClose').addEventListener('click',function(){$('fs').classList.remove('show');restartAuto();});
+  $('fs').addEventListener('click',function(e){if(e.target===$('fs')){$('fs').classList.remove('show');restartAuto();}});
 
   /* ---- full name-card PNG export (physical card look, 1020x600 @ 1.7:1) ---- */
   function loadImg(src){return new Promise(function(res){var i=new Image();i.onload=function(){res(i);};i.onerror=function(){res(null);};i.src=src;});}
@@ -438,53 +456,63 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     var ctx=cv.getContext('2d');
     var fn=((c.first||'')+' '+(c.last||'')).trim()||c.org||'Contact';
     var qr=document.createElement('canvas');
+    /* ellipsize text that would overflow the card */
+    function fit(ctx,text,maxW){
+      if(!text)return '';
+      if(ctx.measureText(text).width<=maxW)return text;
+      var t=text;
+      while(t.length>1&&ctx.measureText(t+'…').width>maxW){t=t.slice(0,-1);}
+      return t+'…';
+    }
     function draw(logoImg,avImg){
       // paper
       ctx.fillStyle='#FFFFFF';roundRect(ctx,0,0,W,H,28);ctx.fill();
       ctx.strokeStyle='#E7E3DA';ctx.lineWidth=2;roundRect(ctx,1,1,W-2,H-2,27);ctx.stroke();
-      // company (logo + name), top-left
-      var coX=pad;
+      // company (logo + name), top-left — ellipsized to leave room for avatar
+      var coX=pad, coMax=W-2*pad-260;
       if(logoImg){
         var lh=34;
-        ctx.drawImage(logoImg,pad,pad-17,120,lh);
+        ctx.drawImage(logoImg,pad,47,120,lh);
         coX=pad+128;
       }
       ctx.fillStyle='#0E7C6B';ctx.font='600 26px "Space Grotesk",sans-serif';
       ctx.textBaseline='alphabetic';ctx.letterSpacing='4px';
-      ctx.fillText((c.org||'').toUpperCase(),coX,pad+22);
-      // avatar top-right (bigger)
+      ctx.fillText(fit(ctx,(c.org||'').toUpperCase(),coMax-8),coX,76);
+      ctx.letterSpacing='0px';
+      // avatar top-right — top aligned with the company line (y47)
       if(avImg){
-        var as=150,ax=W-pad-as,ay=pad-24;
+        var as=150,ax=W-pad-as,ay=47;
         ctx.save();ctx.beginPath();ctx.arc(ax+as/2,ay+as/2,as/2,0,Math.PI*2);ctx.clip();
         ctx.drawImage(avImg,ax,ay,as,as);ctx.restore();
         ctx.strokeStyle='#E7E3DA';ctx.lineWidth=2;ctx.beginPath();ctx.arc(ax+as/2,ay+as/2,as/2,0,Math.PI*2);ctx.stroke();
       } else if(c.layout==='avatar'){
-        var as=150,ax=W-pad-as,ay=pad-24;
+        var as=150,ax=W-pad-as,ay=47;
         ctx.fillStyle='#0E7C6B';ctx.beginPath();ctx.arc(ax+as/2,ay+as/2,as/2,0,Math.PI*2);ctx.fill();
         ctx.fillStyle='#fff';ctx.font='700 58px "Space Grotesk",sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
         ctx.fillText(initials(fn),ax+as/2,ay+as/2+3);
         ctx.textAlign='left';ctx.textBaseline='alphabetic';
       }
-      // name + title
+      // name + title — balanced between company (76) and divider (340)
       ctx.fillStyle='#14181F';ctx.font='700 46px "Space Grotesk",sans-serif';
-      ctx.fillText(fn,pad,225);
+      ctx.fillText(fit(ctx,fn,W-2*pad-280),pad,210);
       ctx.fillStyle='#6B6F76';ctx.font='400 27px "Inter",sans-serif';
-      ctx.fillText(c.title||'',pad,272);
+      ctx.fillText(fit(ctx,c.title||'',W-2*pad-280),pad,258);
       // divider
       ctx.strokeStyle='#EFEBE3';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(pad,340);ctx.lineTo(W-pad,340);ctx.stroke();
-      // contacts (left, labelled rows)
+      // contacts (left, labelled rows) — ellipsized so they never hit the QR
       var rows=[];
       function addRow(k,v){if(!v)return;rows.push([k,String(v)]);}
       addRow('Phone',[c.mobile,c.work].filter(Boolean).join('  ·  '));
       addRow('Email',c.email);
       addRow('Web',(c.web||'').replace(/^https?:\/\//,''));
       addRow('Address',c.addr);
-      var ry=378;
+      var ry=378, valMax=W-2*pad-300;
       rows.forEach(function(r){
         ctx.fillStyle='#A9ADA4';ctx.font='600 15px "Space Mono",monospace';ctx.letterSpacing='3px';
         ctx.fillText(r[0].toUpperCase(),pad,ry);
-        ctx.fillStyle='#4A4F57';ctx.font='400 23px "Inter",sans-serif';ctx.letterSpacing='0px';
-        ctx.fillText(r[1],pad,ry+28);
+        ctx.letterSpacing='0px';
+        ctx.fillStyle='#4A4F57';ctx.font='400 23px "Inter",sans-serif';
+        ctx.fillText(fit(ctx,r[1],valMax),pad,ry+28);
         ry+=52;
       });
       // QR (bottom-right, bigger)
@@ -552,8 +580,8 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     };
     r.readAsDataURL(file);
   }
-  function openSheet(){$('scrim').classList.add('show');$('sheet').classList.add('show');}
-  function closeSheet(){$('scrim').classList.remove('show');$('sheet').classList.remove('show');}
+  function openSheet(){stopAuto();$('scrim').classList.add('show');$('sheet').classList.add('show');}
+  function closeSheet(){$('scrim').classList.remove('show');$('sheet').classList.remove('show');restartAuto();}
   function openAdd(){editingId=null;$('sheetTitle').textContent='Add card';
     fillForm({});openSheet();}
   function openEdit(id){var c=cards.find(function(x){return x.id===id;});if(!c)return;
