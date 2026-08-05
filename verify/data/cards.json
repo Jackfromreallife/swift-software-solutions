@@ -1,0 +1,15 @@
+{
+  "registry": "Ecomwin Card Registry",
+  "home": "https://www.reallife.sg",
+  "updated": "2026-08-05",
+  "cards": [
+    {
+      "code": "DEMO2026ABC1",
+      "name": "Wei Ming Tan",
+      "org": "Changseng Service Pte Ltd",
+      "title": "Operations Manager",
+      "issued": "2026-08-05",
+      "status": "active"
+    }
+  ]
+}
