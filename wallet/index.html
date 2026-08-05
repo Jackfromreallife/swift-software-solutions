@@ -41,24 +41,23 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   /* physical name-card layout (landscape; natural height so content never squishes) */
   .card{background:#fff;border-radius:14px;box-shadow:0 12px 32px rgba(0,0,0,.3);
     padding:14px 16px;max-width:420px;margin:0 auto;position:relative;z-index:1;
-    display:flex;flex-direction:column;min-height:196px;text-align:left;overflow:hidden;
-    transform-style:preserve-3d}
+    display:flex;flex-direction:column;min-height:196px;text-align:left;overflow:hidden}
   .card::after{content:"";position:absolute;right:-34px;top:-34px;width:110px;height:110px;
     border-radius:50%;background:radial-gradient(circle,rgba(14,124,107,.10),transparent 70%)}
-  .c-top{display:flex;justify-content:space-between;align-items:flex-start}
+  .c-top{position:relative;min-height:44px}
   .c-co{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-width:0}
   .c-logo{height:26px;max-width:120px;object-fit:contain}
   .c-co span{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;
     letter-spacing:.14em;color:#0E7C6B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}
   .c-av{width:104px;height:104px;border-radius:50%;overflow:hidden;flex-shrink:0;
-    border:2px solid #EDE9E0;background:#fff}
+    border:2px solid #EDE9E0;background:#fff;position:absolute;top:0;right:0}
   .c-av img{width:100%;height:100%;object-fit:cover}
   .c-av.ph{background:linear-gradient(135deg,#0E7C6B,#23A08A);border:none;color:#fff;
     display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;
     font-size:34px;font-weight:700}
   .c-name{font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:700;color:#14181F;
-    margin-top:12px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .c-title{font-size:12px;color:#6B6F76;margin-top:3px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    margin-top:12px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:230px}
+  .c-title{font-size:12px;color:#6B6F76;margin-top:3px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:230px}
   .c-line{height:1px;background:#EFEBE3;margin:8px 0 7px}
   .c-bottom{display:flex;justify-content:space-between;align-items:flex-end;flex:1;gap:12px}
   .c-lines{flex:1;min-width:0}
@@ -238,7 +237,6 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   <div class="fhint">Point a camera here to add the contact</div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
 <script>
 (function(){
   var KEY='qr_card_wallet_v2';
@@ -410,34 +408,6 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
       scrollT=setTimeout(restartAuto,700);
     });
     goto(Math.min(current,cards.length-1),true);
-    if(window.gsap){
-      var mm=gsap.matchMedia();
-      mm.add({animate:'(prefers-reduced-motion: no-preference)', hover:'(hover: hover) and (pointer: fine)'},function(context){
-        var slides=document.querySelectorAll('.slide');
-        /* card-deal entrance: slides flip in one after another like cards being dealt */
-        gsap.from(slides,{y:44,rotationY:-16,transformPerspective:700,autoAlpha:0,
-          duration:.6,ease:'power3.out',stagger:.09});
-        gsap.from('.card',{scale:.94,autoAlpha:0,duration:.5,ease:'power2.out',stagger:.09,delay:.1});
-        gsap.from('.c-qr',{scale:.6,autoAlpha:0,rotation:4,duration:.55,ease:'back.out(1.7)',stagger:.09,delay:.22});
-        gsap.from('.badge',{autoAlpha:0,y:8,duration:.4,stagger:.09,delay:.32});
-        gsap.from('.c-av',{scale:.3,autoAlpha:0,rotation:-12,duration:.55,ease:'back.out(2)',stagger:.09,delay:.2});
-        /* 3D tilt on hover — the card catches the light like a physical card (desktop only) */
-        if(context.conditions.hover){
-          document.querySelectorAll('.card').forEach(function(card){
-            gsap.set(card,{transformPerspective:800});
-            var rx=gsap.quickTo(card,'rotationX',{duration:.5,ease:'power2.out'});
-            var ry=gsap.quickTo(card,'rotationY',{duration:.5,ease:'power2.out'});
-            card.addEventListener('mousemove',function(e){
-              var r=card.getBoundingClientRect();
-              var px=(e.clientX-r.left)/r.width-.5;
-              var py=(e.clientY-r.top)/r.height-.5;
-              ry(px*10);rx(-py*10);
-            });
-            card.addEventListener('mouseleave',function(){rx(0);ry(0);});
-          });
-        }
-      });
-    }
     restartAuto();
   }
   function updateDots(){var ds=$('dots').children;for(var i=0;i<ds.length;i++)ds[i].className='dot'+(i===current?' on':'');}
@@ -463,7 +433,6 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     $('fsName').textContent=name+(c.title?' · '+c.title:'');
     $('fs').classList.add('show');
     stopAuto();
-    if(window.gsap)gsap.from('#fsCanvas',{scale:.75,autoAlpha:0,duration:.4,ease:'back.out(1.6)'});
   }
   $('fsClose').addEventListener('click',function(){$('fs').classList.remove('show');restartAuto();});
   $('fs').addEventListener('click',function(e){if(e.target===$('fs')){$('fs').classList.remove('show');restartAuto();}});
