@@ -5,7 +5,7 @@ export type Lang = "en" | "zh";
 const en = {
   langName: "English",
   header: {
-    nav: { services: "Services", process: "Process", consultation: "Free Consultation", contact: "Contact" },
+    nav: { services: "Services", products: "Products", process: "Process", consultation: "Free Consultation", contact: "Contact" },
     getStarted: "Get Started",
     toggleMenu: "Toggle menu",
   },
@@ -61,6 +61,42 @@ const en = {
         title: "Scalable Design",
         description:
           "Architecture designed to grow with your business. From startup to enterprise-ready infrastructure.",
+      },
+    ],
+  },
+  products: {
+    label: "Our Tools",
+    titleBefore: "Products Built for",
+    titleHighlight: "Real Businesses",
+    subtitle:
+      "Free tools and ready-made integrations we've built. Try one — and let us build the next one for your company.",
+    items: [
+      {
+        title: "QR Card Wallet",
+        tag: "Free tool",
+        description:
+          "Paperless digital name cards. Create a card, scan the QR, and add the contact to any phone instantly. Each card carries a declaration and a verification code.",
+        cta: "Try it free",
+        url: "/wallet/",
+        badge: "Free",
+      },
+      {
+        title: "QR Name Cards for WordPress",
+        tag: "Integration",
+        description:
+          "Embed the name-card wallet inside your WordPress site. Admins control the cards; verification runs on your own domain. We install and set it up for you.",
+        cta: "Request install",
+        url: "#consultation",
+        badge: "Paid",
+      },
+      {
+        title: "Your Next Tool",
+        tag: "Custom build",
+        description:
+          "Every company has a small internal tool worth building — dashboards, portals, automations. Tell us the idea and we'll build it in days.",
+        cta: "Start a project",
+        url: "#consultation",
+        badge: "Custom",
       },
     ],
   },
@@ -127,7 +163,7 @@ const en = {
     submit: "Get Free Analysis",
     finePrint: "No spam. No obligations. Just honest analysis.",
     toastSuccess: "Thank you! I'll get back to you within 24 hours.",
-    toastError: "Failed to send your request. Please try again or contact us directly at jack_li@reallife.sg",
+    toastError: "Failed to send your request. Please try again or contact us directly at ecomwin.admin@gmail.com",
     errorRequired: "Please fill in all required fields",
     errorEmail: "Please enter a valid email address",
   },
@@ -155,7 +191,7 @@ const en = {
 const zh: typeof en = {
   langName: "中文",
   header: {
-    nav: { services: "服务", process: "流程", consultation: "免费咨询", contact: "联系我们" },
+    nav: { services: "服务", products: "产品", process: "流程", consultation: "免费咨询", contact: "联系我们" },
     getStarted: "立即开始",
     toggleMenu: "切换菜单",
   },
@@ -204,6 +240,38 @@ const zh: typeof en = {
       {
         title: "可扩展设计",
         description: "架构随业务成长而扩展，从初创到企业级基础设施。",
+      },
+    ],
+  },
+  products: {
+    label: "我们的工具",
+    titleBefore: "为真实业务打造的",
+    titleHighlight: "产品",
+    subtitle: "我们构建的免费工具与现成集成方案。先试用一个——然后让我们为您的公司打造下一个。",
+    items: [
+      {
+        title: "二维码名片钱包",
+        tag: "免费工具",
+        description: "无纸化数字名片。创建名片、扫描二维码，即刻存入手机联系人。每张名片都带有声明与验证码。",
+        cta: "免费试用",
+        url: "/wallet/",
+        badge: "免费",
+      },
+      {
+        title: "WordPress 二维码名片插件",
+        tag: "集成方案",
+        description: "将名片钱包嵌入您的 WordPress 网站。管理员管理名片，验证在您自己的域名上进行。我们负责安装与设置。",
+        cta: "申请安装",
+        url: "#consultation",
+        badge: "付费",
+      },
+      {
+        title: "您的下一个工具",
+        tag: "定制开发",
+        description: "每家公司都值得拥有一个小工具——仪表盘、门户、自动化。告诉我们您的想法，数天内交付。",
+        cta: "开始项目",
+        url: "#consultation",
+        badge: "定制",
       },
     ],
   },
@@ -265,7 +333,7 @@ const zh: typeof en = {
     submit: "获取免费分析",
     finePrint: "无垃圾邮件，无任何义务，只有诚实的分析。",
     toastSuccess: "谢谢！我们将在 24 小时内回复您。",
-    toastError: "发送失败，请重试或直接联系我们：jack_li@reallife.sg",
+    toastError: "发送失败，请重试或直接联系我们：ecomwin.admin@gmail.com",
     errorRequired: "请填写所有必填字段",
     errorEmail: "请输入有效的邮箱地址",
   },

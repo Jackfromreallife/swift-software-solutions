@@ -27,7 +27,7 @@ export const sendConsultationEmail = async (formData: ConsultationFormData): Pro
     // Prepare email template parameters
     // These variable names must match your EmailJS template
     const templateParams = {
-      to_email: 'jack_li@reallife.sg',
+      to_email: 'ecomwin.admin@gmail.com',
       from_name: formData.name,
       from_email: formData.email,
       company: formData.company || 'Not provided',

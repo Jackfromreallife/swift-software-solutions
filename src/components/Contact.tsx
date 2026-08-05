@@ -46,14 +46,14 @@ const Contact = () => {
 
         <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
           <a
-            href="mailto:jack_li@reallife.sg"
+            href="mailto:ecomwin.admin@gmail.com"
             className="contact-card glass-card p-8 rounded-xl text-center hover:border-primary/30 transition-all duration-500 group hover:-translate-y-2"
           >
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-transparent flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
               <Mail className="w-8 h-8 text-primary" />
             </div>
-            <h3 className="text-xl font-bold mb-2">{dict.contact.email}</h3>
-            <p className="text-muted-foreground">jack_li@reallife.sg</p>
+            <h3 className="text-xl font-bold mb-2">Ecomwin</h3>
+            <p className="text-muted-foreground">ecomwin.admin@gmail.com</p>
           </a>
 
           <a

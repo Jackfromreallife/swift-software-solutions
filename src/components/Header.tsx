@@ -9,6 +9,7 @@ const Header = () => {
 
   const navLinks = [
     { href: "#services", label: dict.header.nav.services },
+    { href: "#products", label: dict.header.nav.products },
     { href: "#process", label: dict.header.nav.process },
     { href: "#consultation", label: dict.header.nav.consultation },
     { href: "#contact", label: dict.header.nav.contact },
