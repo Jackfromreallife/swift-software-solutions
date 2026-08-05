@@ -49,21 +49,24 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   .c-logo{height:22px;max-width:90px;object-fit:contain}
   .c-co span{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;
     letter-spacing:.14em;color:#0E7C6B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .c-av{width:44px;height:44px;border-radius:50%;overflow:hidden;flex-shrink:0;
-    border:1.5px solid #EDE9E0;background:#fff}
+  .c-av{width:56px;height:56px;border-radius:50%;overflow:hidden;flex-shrink:0;
+    border:2px solid #EDE9E0;background:#fff}
   .c-av img{width:100%;height:100%;object-fit:cover}
   .c-av.ph{background:linear-gradient(135deg,#0E7C6B,#23A08A);border:none;color:#fff;
     display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;
-    font-size:15px;font-weight:700}
+    font-size:19px;font-weight:700}
   .c-name{font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:700;color:#14181F;
-    margin-top:10px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    margin-top:9px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .c-title{font-size:11.5px;color:#6B6F76;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .c-line{height:1px;background:#EFEBE3;margin:9px 0 7px}
+  .c-line{height:1px;background:#EFEBE3;margin:8px 0 6px}
   .c-bottom{display:flex;justify-content:space-between;align-items:flex-end;flex:1;gap:10px}
-  .c-contacts{font-family:'Space Mono',monospace;font-size:9.5px;color:#4A4F57;
-    line-height:1.75;letter-spacing:.02em;min-width:0}
-  .c-r1,.c-r2{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px}
-  .c-qr{width:74px;height:74px;flex-shrink:0;border:1px solid #EFEBE3;border-radius:8px;
+  .c-lines{flex:1;min-width:0}
+  .c-row{margin-bottom:5px}
+  .c-row .k{font-family:'Space Mono',monospace;font-size:7px;font-weight:700;
+    letter-spacing:.14em;text-transform:uppercase;color:#A9ADA4;line-height:1.2}
+  .c-row .v{font-family:'Inter',sans-serif;font-size:10.5px;color:#4A4F57;
+    line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .c-qr{width:92px;height:92px;flex-shrink:0;border:1px solid #EFEBE3;border-radius:8px;
     padding:4px;background:#fff}
   .c-qr canvas{width:100%;height:100%;display:block}
   .badge{display:inline-flex;align-items:center;gap:5px;background:rgba(14,124,107,.18);
@@ -346,18 +349,18 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     var av='';
     if(c.avatar)av='<div class="c-av"><img src="'+c.avatar+'" alt=""></div>';
     else if(c.layout==='avatar')av='<div class="c-av ph">'+h(initials(fn))+'</div>';
-    var l1=[c.mobile,c.work,c.email].filter(Boolean).join('  ·  ');
-    var l2=[(c.web||'').replace(/^https?:\/\//,''),c.addr].filter(Boolean).join('  ·  ');
+    var l1=[c.mobile,c.work].filter(Boolean).join(' · ');
+    var l2=(c.web||'').replace(/^https?:\/\//,'');
+    var rows='';
+    function row(k,v){if(!v)return '';return '<div class="c-row"><div class="k">'+k+'</div><div class="v">'+h(v)+'</div></div>';}
+    rows+=row('Phone',l1)+row('Email',c.email)+row('Web',l2)+row('Address',c.addr);
     return '<div class="card">'+
       '<div class="c-top"><div class="c-co">'+logo+'<span>'+h((c.org||'').toUpperCase())+'</span></div>'+av+'</div>'+
       '<div class="c-name">'+h(fn||c.org||'Contact')+'</div>'+
       '<div class="c-title">'+h(c.title||'')+'</div>'+
       '<div class="c-line"></div>'+
       '<div class="c-bottom">'+
-        '<div class="c-contacts">'+
-          (l1?'<div class="c-r1">'+h(l1)+'</div>':'')+
-          (l2?'<div class="c-r2">'+h(l2)+'</div>':'')+
-        '</div>'+
+        '<div class="c-lines">'+rows+'</div>'+
         '<div class="c-qr"><canvas></canvas></div>'+
       '</div></div>';
   }
@@ -381,7 +384,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
         '<button data-act="edit">Edit</button><button data-act="del">Delete</button></div>';
       s.innerHTML=cardHTML(c)+badge+
         '<div class="tap">Tap QR to enlarge for scanning</div>'+actions;
-      renderQR(s.querySelector('.c-qr canvas'),c,168);
+      renderQR(s.querySelector('.c-qr canvas'),c,200);
       s.querySelector('.c-qr').addEventListener('click',function(){openFs(c);});
       s.querySelectorAll('[data-act]').forEach(function(b){
         b.addEventListener('click',function(){
@@ -449,17 +452,17 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
       ctx.fillStyle='#0E7C6B';ctx.font='600 26px "Space Grotesk",sans-serif';
       ctx.textBaseline='alphabetic';ctx.letterSpacing='4px';
       ctx.fillText((c.org||'').toUpperCase(),coX,pad+22);
-      // avatar top-right
+      // avatar top-right (bigger)
       if(avImg){
-        var as=110,ax=W-pad-as,ay=pad-24;
+        var as=150,ax=W-pad-as,ay=pad-24;
         ctx.save();ctx.beginPath();ctx.arc(ax+as/2,ay+as/2,as/2,0,Math.PI*2);ctx.clip();
         ctx.drawImage(avImg,ax,ay,as,as);ctx.restore();
         ctx.strokeStyle='#E7E3DA';ctx.lineWidth=2;ctx.beginPath();ctx.arc(ax+as/2,ay+as/2,as/2,0,Math.PI*2);ctx.stroke();
       } else if(c.layout==='avatar'){
-        var as=110,ax=W-pad-as,ay=pad-24;
+        var as=150,ax=W-pad-as,ay=pad-24;
         ctx.fillStyle='#0E7C6B';ctx.beginPath();ctx.arc(ax+as/2,ay+as/2,as/2,0,Math.PI*2);ctx.fill();
-        ctx.fillStyle='#fff';ctx.font='700 44px "Space Grotesk",sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
-        ctx.fillText(initials(fn),ax+as/2,ay+as/2+2);
+        ctx.fillStyle='#fff';ctx.font='700 58px "Space Grotesk",sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+        ctx.fillText(initials(fn),ax+as/2,ay+as/2+3);
         ctx.textAlign='left';ctx.textBaseline='alphabetic';
       }
       // name + title
@@ -469,14 +472,23 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
       ctx.fillText(c.title||'',pad,272);
       // divider
       ctx.strokeStyle='#EFEBE3';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(pad,340);ctx.lineTo(W-pad,340);ctx.stroke();
-      // contacts (left)
-      var l1=[c.mobile,c.work,c.email].filter(Boolean).join('   ·   ');
-      var l2=[(c.web||'').replace(/^https?:\/\//,''),c.addr].filter(Boolean).join('   ·   ');
-      ctx.fillStyle='#4A4F57';ctx.font='400 23px "Inter",sans-serif';
-      if(l1)ctx.fillText(l1,pad,398);
-      if(l2)ctx.fillText(l2,pad,440);
-      // QR (bottom-right)
-      var qs=196,qx=W-pad-qs,qy=H-pad-qs;
+      // contacts (left, labelled rows)
+      var rows=[];
+      function addRow(k,v){if(!v)return;rows.push([k,String(v)]);}
+      addRow('Phone',[c.mobile,c.work].filter(Boolean).join('  ·  '));
+      addRow('Email',c.email);
+      addRow('Web',(c.web||'').replace(/^https?:\/\//,''));
+      addRow('Address',c.addr);
+      var ry=378;
+      rows.forEach(function(r){
+        ctx.fillStyle='#A9ADA4';ctx.font='600 15px "Space Mono",monospace';ctx.letterSpacing='3px';
+        ctx.fillText(r[0].toUpperCase(),pad,ry);
+        ctx.fillStyle='#4A4F57';ctx.font='400 23px "Inter",sans-serif';ctx.letterSpacing='0px';
+        ctx.fillText(r[1],pad,ry+28);
+        ry+=52;
+      });
+      // QR (bottom-right, bigger)
+      var qs=250,qx=W-pad-qs,qy=H-pad-qs;
       ctx.fillStyle='#fff';roundRect(ctx,qx-14,qy-14,qs+28,qs+28,12);ctx.fill();
       ctx.strokeStyle='#EFEBE3';ctx.lineWidth=2;roundRect(ctx,qx-14,qy-14,qs+28,qs+28,12);ctx.stroke();
       ctx.drawImage(qr,qx,qy,qs,qs);
