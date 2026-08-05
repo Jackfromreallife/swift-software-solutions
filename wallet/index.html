@@ -41,7 +41,8 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   /* physical name-card layout (landscape; natural height so content never squishes) */
   .card{background:#fff;border-radius:14px;box-shadow:0 12px 32px rgba(0,0,0,.3);
     padding:14px 16px;max-width:420px;margin:0 auto;position:relative;z-index:1;
-    display:flex;flex-direction:column;min-height:196px;text-align:left;overflow:hidden}
+    display:flex;flex-direction:column;min-height:196px;text-align:left;overflow:hidden;
+    transform-style:preserve-3d}
   .card::after{content:"";position:absolute;right:-34px;top:-34px;width:110px;height:110px;
     border-radius:50%;background:radial-gradient(circle,rgba(14,124,107,.10),transparent 70%)}
   .c-top{display:flex;justify-content:space-between;align-items:flex-start}
@@ -49,17 +50,17 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   .c-logo{height:26px;max-width:120px;object-fit:contain}
   .c-co span{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;
     letter-spacing:.14em;color:#0E7C6B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}
-  .c-av{width:52px;height:52px;border-radius:50%;overflow:hidden;flex-shrink:0;
+  .c-av{width:104px;height:104px;border-radius:50%;overflow:hidden;flex-shrink:0;
     border:2px solid #EDE9E0;background:#fff}
   .c-av img{width:100%;height:100%;object-fit:cover}
   .c-av.ph{background:linear-gradient(135deg,#0E7C6B,#23A08A);border:none;color:#fff;
     display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;
-    font-size:18px;font-weight:700}
+    font-size:34px;font-weight:700}
   .c-name{font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:700;color:#14181F;
-    margin-top:9px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    margin-top:12px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .c-title{font-size:12px;color:#6B6F76;margin-top:3px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .c-line{height:1px;background:#EFEBE3;margin:8px 0 7px}
-  .c-bottom{display:flex;justify-content:space-between;align-items:flex-end;flex:1;gap:10px}
+  .c-bottom{display:flex;justify-content:space-between;align-items:flex-end;flex:1;gap:12px}
   .c-lines{flex:1;min-width:0}
   .c-row{margin-bottom:5px}
   .c-row .k{font-family:'Space Mono',monospace;font-size:7px;font-weight:700;
@@ -67,8 +68,8 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   .c-row .v{font-family:'Inter',sans-serif;font-size:10.5px;color:#4A4F57;
     line-height:1.35;white-space:normal;overflow:hidden;
     display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
-  .c-qr{width:84px;height:84px;flex-shrink:0;border:1px solid #EFEBE3;border-radius:8px;
-    padding:4px;background:#fff}
+  .c-qr{width:168px;height:168px;flex-shrink:0;border:1px solid #EFEBE3;border-radius:12px;
+    padding:8px;background:#fff}
   .c-qr canvas{width:100%;height:100%;display:block}
   .badge{display:inline-flex;align-items:center;gap:5px;background:rgba(14,124,107,.18);
     color:#7FD8C6;border:1px solid rgba(14,124,107,.35);border-radius:99px;
@@ -385,7 +386,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
         '<button data-act="edit">Edit</button><button data-act="del">Delete</button></div>';
       s.innerHTML=cardHTML(c)+badge+
         '<div class="tap">Tap QR to enlarge for scanning</div>'+actions;
-      renderQR(s.querySelector('.c-qr canvas'),c,200);
+      renderQR(s.querySelector('.c-qr canvas'),c,340);
       s.querySelector('.c-qr').addEventListener('click',function(){openFs(c);});
       s.querySelectorAll('[data-act]').forEach(function(b){
         b.addEventListener('click',function(){
@@ -411,12 +412,30 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     goto(Math.min(current,cards.length-1),true);
     if(window.gsap){
       var mm=gsap.matchMedia();
-      mm.add('(prefers-reduced-motion: no-preference)',function(){
-        gsap.from('.slide',{y:28,autoAlpha:0,duration:.55,ease:'power3.out',stagger:.07});
-        gsap.from('.card',{scale:.94,autoAlpha:0,duration:.5,ease:'power2.out',stagger:.07,delay:.08});
-        gsap.from('.c-qr',{scale:.7,autoAlpha:0,duration:.5,ease:'back.out(1.7)',stagger:.07,delay:.2});
-        gsap.from('.badge',{autoAlpha:0,y:8,duration:.4,stagger:.07,delay:.3});
-        gsap.from('.c-av',{scale:.4,autoAlpha:0,rotation:-10,duration:.5,ease:'back.out(2)',stagger:.07,delay:.18});
+      mm.add({animate:'(prefers-reduced-motion: no-preference)', hover:'(hover: hover) and (pointer: fine)'},function(context){
+        var slides=document.querySelectorAll('.slide');
+        /* card-deal entrance: slides flip in one after another like cards being dealt */
+        gsap.from(slides,{y:44,rotationY:-16,transformPerspective:700,autoAlpha:0,
+          duration:.6,ease:'power3.out',stagger:.09});
+        gsap.from('.card',{scale:.94,autoAlpha:0,duration:.5,ease:'power2.out',stagger:.09,delay:.1});
+        gsap.from('.c-qr',{scale:.6,autoAlpha:0,rotation:4,duration:.55,ease:'back.out(1.7)',stagger:.09,delay:.22});
+        gsap.from('.badge',{autoAlpha:0,y:8,duration:.4,stagger:.09,delay:.32});
+        gsap.from('.c-av',{scale:.3,autoAlpha:0,rotation:-12,duration:.55,ease:'back.out(2)',stagger:.09,delay:.2});
+        /* 3D tilt on hover — the card catches the light like a physical card (desktop only) */
+        if(context.conditions.hover){
+          document.querySelectorAll('.card').forEach(function(card){
+            gsap.set(card,{transformPerspective:800});
+            var rx=gsap.quickTo(card,'rotationX',{duration:.5,ease:'power2.out'});
+            var ry=gsap.quickTo(card,'rotationY',{duration:.5,ease:'power2.out'});
+            card.addEventListener('mousemove',function(e){
+              var r=card.getBoundingClientRect();
+              var px=(e.clientX-r.left)/r.width-.5;
+              var py=(e.clientY-r.top)/r.height-.5;
+              ry(px*10);rx(-py*10);
+            });
+            card.addEventListener('mouseleave',function(){rx(0);ry(0);});
+          });
+        }
       });
     }
     restartAuto();
@@ -452,7 +471,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   /* ---- full name-card PNG export (physical card look, 1020x600 @ 1.7:1) ---- */
   function loadImg(src){return new Promise(function(res){var i=new Image();i.onload=function(){res(i);};i.onerror=function(){res(null);};i.src=src;});}
   function renderCardPNG(c,cb){
-    var W=1020,H=600,pad=54;
+    var W=1400,H=1000,pad=60;
     var cv=document.createElement('canvas');cv.width=W;cv.height=H;
     var ctx=cv.getContext('2d');
     var fn=((c.first||'')+' '+(c.last||'')).trim()||c.org||'Contact';
@@ -467,69 +486,68 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     }
     function draw(logoImg,avImg){
       // paper
-      ctx.fillStyle='#FFFFFF';roundRect(ctx,0,0,W,H,28);ctx.fill();
-      ctx.strokeStyle='#E7E3DA';ctx.lineWidth=2;roundRect(ctx,1,1,W-2,H-2,27);ctx.stroke();
-      // company block (logo on top, name below), top-left — ellipsized
-      var coX=pad, coMax=W-2*pad-260;
+      ctx.fillStyle='#FFFFFF';roundRect(ctx,0,0,W,H,32);ctx.fill();
+      ctx.strokeStyle='#E7E3DA';ctx.lineWidth=3;roundRect(ctx,1.5,1.5,W-3,H-3,31);ctx.stroke();
+      // company block (logo on top, name below), top-left
+      var coMax=W-2*pad-360;
       if(logoImg){
-        ctx.drawImage(logoImg,pad,40,120,34);
-        coX=pad;
+        ctx.drawImage(logoImg,pad,44,150,42);
       }
-      ctx.fillStyle='#0E7C6B';ctx.font='600 24px "Space Grotesk",sans-serif';
+      ctx.fillStyle='#0E7C6B';ctx.font='600 28px "Space Grotesk",sans-serif';
       ctx.textBaseline='alphabetic';ctx.letterSpacing='3px';
-      ctx.fillText(fit(ctx,(c.org||'').toUpperCase(),coMax-8),coX,logoImg?102:76);
+      ctx.fillText(fit(ctx,(c.org||'').toUpperCase(),coMax-8),pad,logoImg?112:82);
       ctx.letterSpacing='0px';
-      // avatar top-right — aligned with the logo/company block
+      // avatar top-right — 280px (2x)
       if(avImg){
-        var as=140,ax=W-pad-as,ay=40;
+        var as=280,ax=W-pad-as,ay=44;
         ctx.save();ctx.beginPath();ctx.arc(ax+as/2,ay+as/2,as/2,0,Math.PI*2);ctx.clip();
         ctx.drawImage(avImg,ax,ay,as,as);ctx.restore();
-        ctx.strokeStyle='#E7E3DA';ctx.lineWidth=2;ctx.beginPath();ctx.arc(ax+as/2,ay+as/2,as/2,0,Math.PI*2);ctx.stroke();
+        ctx.strokeStyle='#E7E3DA';ctx.lineWidth=3;ctx.beginPath();ctx.arc(ax+as/2,ay+as/2,as/2,0,Math.PI*2);ctx.stroke();
       } else if(c.layout==='avatar'){
-        var as=140,ax=W-pad-as,ay=40;
+        var as=280,ax=W-pad-as,ay=44;
         ctx.fillStyle='#0E7C6B';ctx.beginPath();ctx.arc(ax+as/2,ay+as/2,as/2,0,Math.PI*2);ctx.fill();
-        ctx.fillStyle='#fff';ctx.font='700 54px "Space Grotesk",sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
-        ctx.fillText(initials(fn),ax+as/2,ay+as/2+3);
+        ctx.fillStyle='#fff';ctx.font='700 100px "Space Grotesk",sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+        ctx.fillText(initials(fn),ax+as/2,ay+as/2+4);
         ctx.textAlign='left';ctx.textBaseline='alphabetic';
       }
-      // name + title — clear separation, never overlapping
-      ctx.fillStyle='#14181F';ctx.font='700 44px "Space Grotesk",sans-serif';
-      ctx.fillText(fit(ctx,fn,W-2*pad-280),pad,222);
-      ctx.fillStyle='#6B6F76';ctx.font='400 26px "Inter",sans-serif';
-      ctx.fillText(fit(ctx,c.title||'',W-2*pad-280),pad,272);
+      // name + title
+      ctx.fillStyle='#14181F';ctx.font='700 52px "Space Grotesk",sans-serif';
+      ctx.fillText(fit(ctx,fn,W-2*pad-380),pad,218);
+      ctx.fillStyle='#6B6F76';ctx.font='400 30px "Inter",sans-serif';
+      ctx.fillText(fit(ctx,c.title||'',W-2*pad-380),pad,268);
       // divider
-      ctx.strokeStyle='#EFEBE3';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(pad,348);ctx.lineTo(W-pad,348);ctx.stroke();
-      // contacts (left, labelled rows) — values wrap to a second line instead of truncating
+      ctx.strokeStyle='#EFEBE3';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(pad,340);ctx.lineTo(W-pad-560,340);ctx.stroke();
+      // contacts (left, labelled rows) — values wrap to a second line
       var rows=[];
       function addRow(k,v){if(!v)return;rows.push([k,String(v)]);}
       addRow('Phone',[c.mobile,c.work].filter(Boolean).join('  ·  '));
       addRow('Email',c.email);
       addRow('Web',(c.web||'').replace(/^https?:\/\//,''));
       addRow('Address',c.addr);
-      var ry=388, valMax=W-2*pad-300;
+      var ry=382, valMax=W-2*pad-620;
       rows.forEach(function(r){
-        ctx.fillStyle='#A9ADA4';ctx.font='600 14px "Space Mono",monospace';ctx.letterSpacing='3px';
+        ctx.fillStyle='#A9ADA4';ctx.font='600 15px "Space Mono",monospace';ctx.letterSpacing='3px';
         ctx.fillText(r[0].toUpperCase(),pad,ry);
         ctx.letterSpacing='0px';
-        ctx.fillStyle='#4A4F57';ctx.font='400 22px "Inter",sans-serif';
+        ctx.fillStyle='#4A4F57';ctx.font='400 25px "Inter",sans-serif';
         var line1=fit(ctx,r[1],valMax);
         var line2='';
         if(line1!==r[1]&&r[1].length>line1.length){
           var rest=r[1].slice(line1.length).replace(/^[^A-Za-z0-9]+/,'');
           line2=fit(ctx,rest,valMax);
         }
-        ctx.fillText(line1,pad,ry+27);
-        if(line2)ctx.fillText(line2,pad,ry+53);
-        ry+=line2?74:52;
+        ctx.fillText(line1,pad,ry+30);
+        if(line2)ctx.fillText(line2,pad,ry+60);
+        ry+=line2?84:58;
       });
-      // QR (bottom-right, bigger)
-      var qs=250,qx=W-pad-qs,qy=H-pad-qs;
-      ctx.fillStyle='#fff';roundRect(ctx,qx-14,qy-14,qs+28,qs+28,12);ctx.fill();
-      ctx.strokeStyle='#EFEBE3';ctx.lineWidth=2;roundRect(ctx,qx-14,qy-14,qs+28,qs+28,12);ctx.stroke();
+      // QR (bottom-right) — 500px (2x), the card's hero element
+      var qs=500,qx=W-pad-qs,qy=H-pad-qs;
+      ctx.fillStyle='#fff';roundRect(ctx,qx-16,qy-16,qs+32,qs+32,16);ctx.fill();
+      ctx.strokeStyle='#EFEBE3';ctx.lineWidth=3;roundRect(ctx,qx-16,qy-16,qs+32,qs+32,16);ctx.stroke();
       ctx.drawImage(qr,qx,qy,qs,qs);
       cb(cv.toDataURL('image/png'));
     }
-    renderQR(qr,c,220,function(){
+    renderQR(qr,c,560,function(){
       var jobs=[document.fonts.ready];
       if(c.logo)jobs.push(loadImg(c.logo));
       if(c.avatar)jobs.push(loadImg(c.avatar));
