@@ -54,6 +54,18 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   .s-actions button{background:rgba(255,255,255,.08);color:#E7E9ED;border:1px solid rgba(255,255,255,.14);
     border-radius:9px;padding:8px 12px;font-size:12px;font-family:'Space Mono',monospace;letter-spacing:.04em}
   .s-actions button:hover{background:rgba(255,255,255,.16)}
+  /* avatar layout variant */
+  .s-top{display:flex;align-items:center;gap:14px;text-align:left;margin-bottom:18px;position:relative;z-index:1}
+  .av{width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.22);flex-shrink:0;background:#fff}
+  .av-ph{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#0E7C6B,#23A08A);color:#fff;
+    font-size:22px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;letter-spacing:.02em}
+  .s-tx{flex:1;min-width:0}
+  .slide.has-av .s-org{margin-top:0;font-size:15px;color:#C7CBD2}
+  .slide.has-av .s-name{margin-top:0;font-size:16px;color:#fff;font-weight:700}
+  .slide.has-av .qrframe{margin-top:4px}
+  .av-prev{border-radius:50%}
+  .av-prev img{object-fit:cover;border-radius:50%}
+  .hint{font-size:11px;color:var(--muted);margin:6px 0 0;line-height:1.5}
   .tap{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.1em;
     text-transform:uppercase;color:#7FD8C6;margin-top:14px;position:relative;z-index:1}
 
@@ -173,6 +185,18 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
       <input type="file" id="logoFile" accept="image/*" class="hidden">
     </div>
   </div>
+  <div class="field">
+    <label>Your photo / avatar (shown on the card)</label>
+    <div class="logo-row">
+      <div class="logo-prev av-prev" id="avPrev"><span>none</span></div>
+      <div class="logo-btns">
+        <button class="ghost" id="avPick">Upload</button>
+        <button class="ghost" id="avClear">Remove</button>
+      </div>
+      <input type="file" id="avFile" accept="image/*" class="hidden">
+    </div>
+    <p class="hint">Square photos work best — we crop to a circle automatically. No photo? The card shows your initials instead.</p>
+  </div>
 
   <div class="decl">
     <input type="checkbox" id="f-decl">
@@ -196,6 +220,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   <div class="fhint">Point a camera here to add the contact</div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
 <script>
 (function(){
   var KEY='qr_card_wallet_v2';
@@ -213,12 +238,23 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     }
   };
 
-  var cards=[], current=0, editingId=null, pendingLogo=null;
+  var cards=[], current=0, editingId=null, pendingLogo=null, pendingAvatar=null;
 
   function uid(){return 'c'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
   function $(id){return document.getElementById(id);}
   function esc(s){return s.replace(/([\\,;])/g,'\\$1');}
   function fmtDate(iso){if(!iso)return '';try{var d=new Date(iso);return d.toLocaleString('en-SG',{dateStyle:'medium',timeStyle:'short'});}catch(e){return iso;}}
+  function initials(name){
+    var parts=(name||'').trim().split(/\s+/);
+    var a=parts[0]?parts[0][0]:'',b=parts[1]?parts[1][0]:(parts[0]?parts[0][1]:'');
+    return (a+b).toUpperCase()||'E';
+  }
+  /* normalize cards (migration + imports): ensure layout field */
+  function normalize(c){
+    if(c.layout!=='avatar'&&c.layout!=='plain')c.layout=(c.avatar)?'avatar':'plain';
+    if(!c.avatar)c.layout='plain';
+    return c;
+  }
 
   function vcard(c){
     var fn=((c.first||'')+' '+(c.last||'')).trim();
@@ -299,18 +335,30 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     }
     var slider=document.createElement('div');slider.className='slider';slider.id='slider';
     cards.forEach(function(c,i){
+      c=normalize(c);
       var s=document.createElement('div');s.className='slide';
       var name=((c.first||'')+' '+(c.last||'')).trim();
       var badge=c.verifyCode
         ?'<span class="badge">✓ Ecomwin Verified</span>'
         :'<span class="badge warn">Unregistered — declaration on file</span>';
-      s.innerHTML='<div class="qrframe"><canvas></canvas></div>'+
-        badge+
-        '<div class="tap">Tap QR to enlarge for scanning</div>'+
-        '<div class="s-org">'+(c.org||'(no company)')+'</div>'+
-        '<div class="s-name">'+(name?name+(c.title?' · '+c.title:''):(c.title||''))+'</div>'+
-        '<div class="s-actions"><button data-act="png">Save PNG</button>'+
+      var actions='<div class="s-actions"><button data-act="png">Save PNG</button>'+
         '<button data-act="edit">Edit</button><button data-act="del">Delete</button></div>';
+      if(c.layout==='avatar'){
+        s.className='slide has-av';
+        var avHtml=c.avatar
+          ?'<img class="av" src="'+c.avatar+'" alt="'+esc(name)+'">'
+          :'<div class="av-ph">'+initials(name)+'</div>';
+        s.innerHTML='<div class="s-top">'+avHtml+
+          '<div class="s-tx"><div class="s-name">'+(name?name+(c.title?' · '+c.title:''):(c.title||''))+'</div>'+
+          '<div class="s-org">'+(c.org||'(no company)')+'</div></div></div>'+
+          '<div class="qrframe"><canvas></canvas></div>'+badge+
+          '<div class="tap">Tap QR to enlarge for scanning</div>'+actions;
+      } else {
+        s.innerHTML='<div class="qrframe"><canvas></canvas></div>'+badge+
+          '<div class="tap">Tap QR to enlarge for scanning</div>'+
+          '<div class="s-org">'+(c.org||'(no company)')+'</div>'+
+          '<div class="s-name">'+(name?name+(c.title?' · '+c.title:''):(c.title||''))+'</div>'+actions;
+      }
       renderQR(s.querySelector('canvas'),c,512);
       s.querySelector('.qrframe').addEventListener('click',function(){openFs(c);});
       s.querySelectorAll('[data-act]').forEach(function(b){
@@ -332,6 +380,15 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
       if(i!==current){current=i;updateDots();}
     });
     goto(Math.min(current,cards.length-1),true);
+    if(window.gsap){
+      var mm=gsap.matchMedia();
+      mm.add('(prefers-reduced-motion: no-preference)',function(){
+        gsap.from('.slide',{y:28,autoAlpha:0,duration:.55,ease:'power3.out',stagger:.07});
+        gsap.from('.qrframe',{scale:.82,autoAlpha:0,duration:.5,ease:'back.out(1.7)',stagger:.07,delay:.1});
+        gsap.from('.badge',{autoAlpha:0,y:8,duration:.4,stagger:.07,delay:.28});
+        gsap.from('.av, .av-ph',{scale:.4,autoAlpha:0,rotation:-10,duration:.5,ease:'back.out(2)',stagger:.07,delay:.15});
+      });
+    }
   }
   function updateDots(){var ds=$('dots').children;for(var i=0;i<ds.length;i++)ds[i].className='dot'+(i===current?' on':'');}
   function goto(i,instant){current=i;var sl=$('slider');if(sl)sl.scrollTo({left:i*sl.clientWidth,behavior:instant?'auto':'smooth'});updateDots();}
@@ -342,6 +399,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     $('fsOrg').textContent=c.org||'';
     $('fsName').textContent=name+(c.title?' · '+c.title:'');
     $('fs').classList.add('show');
+    if(window.gsap)gsap.from('#fsCanvas',{scale:.75,autoAlpha:0,duration:.4,ease:'back.out(1.6)'});
   }
   $('fsClose').addEventListener('click',function(){$('fs').classList.remove('show');});
   $('fs').addEventListener('click',function(e){if(e.target===$('fs'))$('fs').classList.remove('show');});
@@ -361,6 +419,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     $('f-org').value=c.org||'';$('f-mobile').value=c.mobile||'';$('f-work').value=c.work||'';
     $('f-email').value=c.email||'';$('f-web').value=c.web||'';$('f-addr').value=c.addr||'';
     setLogoPreview(c.logo||null);
+    setAvPreview(c.avatar||null);
     $('f-decl').checked=!!c.declaredAt;
     $('declErr').classList.remove('show');
     var m=[];
@@ -374,6 +433,27 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     var p=$('logoPrev');
     p.innerHTML=d?'<img src="'+d+'">':'<span>none</span>';
   }
+  function setAvPreview(d){
+    pendingAvatar=d;
+    var p=$('avPrev');
+    p.innerHTML=d?'<img src="'+d+'">':'<span>none</span>';
+  }
+  /* avatar file -> 400x400 center-crop square (data URL) */
+  function processAvatar(file,cb){
+    var r=new FileReader();
+    r.onload=function(){
+      var img=new Image();
+      img.onload=function(){
+        var side=Math.min(img.width,img.height);
+        var sx=(img.width-side)/2,sy=(img.height-side)/2;
+        var cv=document.createElement('canvas');cv.width=400;cv.height=400;
+        cv.getContext('2d').drawImage(img,sx,sy,side,side,0,0,400,400);
+        cb(cv.toDataURL('image/jpeg',0.85));
+      };
+      img.src=r.result;
+    };
+    r.readAsDataURL(file);
+  }
   function openSheet(){$('scrim').classList.add('show');$('sheet').classList.add('show');}
   function closeSheet(){$('scrim').classList.remove('show');$('sheet').classList.remove('show');}
   function openAdd(){editingId=null;$('sheetTitle').textContent='Add card';
@@ -386,6 +466,13 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   $('scrim').addEventListener('click',closeSheet);
   $('logoPick').addEventListener('click',function(){$('logoFile').click();});
   $('logoClear').addEventListener('click',function(){setLogoPreview(null);});
+  $('avPick').addEventListener('click',function(){$('avFile').click();});
+  $('avClear').addEventListener('click',function(){setAvPreview(null);});
+  $('avFile').addEventListener('change',function(e){
+    var f=e.target.files[0];if(!f)return;
+    processAvatar(f,function(d){setAvPreview(d);});
+    e.target.value='';
+  });
   $('logoFile').addEventListener('change',function(e){
     var f=e.target.files[0];if(!f)return;
     var r=new FileReader();
@@ -418,7 +505,8 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
       title:$('f-title').value.trim(),org:$('f-org').value.trim(),
       mobile:$('f-mobile').value.trim(),work:$('f-work').value.trim(),
       email:$('f-email').value.trim(),web:$('f-web').value.trim(),
-      addr:$('f-addr').value.trim(),logo:pendingLogo,
+      addr:$('f-addr').value.trim(),logo:pendingLogo,avatar:pendingAvatar,
+      layout:pendingAvatar?'avatar':'plain',
       declaredAt:existing&&existing.declaredAt?existing.declaredAt:new Date().toISOString(),
       createdAt:existing&&existing.createdAt?existing.createdAt:new Date().toISOString(),
       verifyCode:existing&&existing.verifyCode?existing.verifyCode:null
@@ -446,7 +534,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     var r=new FileReader();
     r.onload=function(){
       try{var data=JSON.parse(r.result);
-        if(Array.isArray(data)){data.forEach(function(c){if(!c.id)c.id=uid();});cards=data;current=0;persist();render();}
+        if(Array.isArray(data)){data.forEach(function(c){if(!c.id)c.id=uid();normalize(c);});cards=data;current=0;persist();render();}
         else alert('That file does not look like a wallet backup.');
       }catch(err){alert('Could not read that file.');}
     };
@@ -461,7 +549,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   }
 
   Store.get().then(function(raw){
-    if(raw){try{cards=JSON.parse(raw)||[];}catch(e){cards=[];}}
+    if(raw){try{cards=(JSON.parse(raw)||[]).map(normalize);}catch(e){cards=[];}}
     render();
     $('storeHint').textContent=hintText();
   });
