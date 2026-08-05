@@ -77,8 +77,9 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   .scrim.show{display:block}
   .sheet{position:fixed;left:0;right:0;bottom:0;max-height:92vh;overflow-y:auto;
     background:var(--paper);border-radius:20px 20px 0 0;z-index:51;
-    padding:22px 18px 32px;transform:translateY(100%);transition:transform .25s ease}
-  .sheet.show{transform:translateY(0)}
+    padding:22px 18px 32px;transform:translateY(100%);transition:transform .25s ease;
+    visibility:hidden;pointer-events:none}
+  .sheet.show{transform:translateY(0);visibility:visible;pointer-events:auto}
   @media(min-width:620px){.sheet{left:50%;right:auto;bottom:auto;top:50%;width:560px;
     transform:translate(-50%,-46%);border-radius:18px;max-height:90vh}
     .sheet.show{transform:translate(-50%,-50%)}}
@@ -153,13 +154,13 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     <div class="field"><label>Last name</label><input id="f-last" placeholder="Tan"></div>
   </div>
   <div class="field"><label>Job title</label><input id="f-title" placeholder="Operations Manager"></div>
-  <div class="field"><label>Company</label><input id="f-org" placeholder="Changseng Service Pte Ltd"></div>
+  <div class="field"><label>Company</label><input id="f-org" placeholder="Your Company Pte Ltd"></div>
   <div class="two">
     <div class="field"><label>Mobile</label><input id="f-mobile" placeholder="+65 9123 4567"></div>
     <div class="field"><label>Office</label><input id="f-work" placeholder="+65 6123 4567"></div>
   </div>
-  <div class="field"><label>Email</label><input id="f-email" placeholder="name@changseng.com.sg"></div>
-  <div class="field"><label>Website</label><input id="f-web" placeholder="www.changseng.com.sg"></div>
+  <div class="field"><label>Email</label><input id="f-email" placeholder="name@reallife.sg"></div>
+  <div class="field"><label>Website</label><input id="f-web" placeholder="www.reallife.sg"></div>
   <div class="field"><label>Address</label><input id="f-addr" placeholder="1 Example Rd, Singapore 123456"></div>
   <div class="field">
     <label>Company logo (embedded in QR centre)</label>
@@ -376,7 +377,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   function openSheet(){$('scrim').classList.add('show');$('sheet').classList.add('show');}
   function closeSheet(){$('scrim').classList.remove('show');$('sheet').classList.remove('show');}
   function openAdd(){editingId=null;$('sheetTitle').textContent='Add card';
-    fillForm({org:'Changseng Service Pte Ltd'});openSheet();}
+    fillForm({});openSheet();}
   function openEdit(id){var c=cards.find(function(x){return x.id===id;});if(!c)return;
     editingId=id;$('sheetTitle').textContent='Edit card';fillForm(c);openSheet();}
 
