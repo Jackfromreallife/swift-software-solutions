@@ -13,7 +13,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
 </script>
 <style>
   :root{
-    --ink:#14181F; --paper:#FBFAF7; --jade:#0E7C6B; --jade-dk:#0A5E51;
+    --ink:#14181F; --paper:#FBFAF7; --jade:#00C75E; --jade-dk:#00A854;
     --line:#E3DFD6; --muted:#6B6F76; --card:#1A1F28; --amber:#C98A1B;
   }
   *{box-sizing:border-box;margin:0;padding:0}
@@ -24,7 +24,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
 
   header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
   .brand{display:flex;align-items:center;gap:10px;text-decoration:none}
-  .mark{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#0E7C6B,#23A08A);
+  .mark{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#00C75E,#23A08A);
     color:#fff;display:flex;align-items:center;justify-content:center;flex:0 0 auto;
     font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:19px}
   .brand-tx{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:var(--ink);
@@ -34,7 +34,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   .head-actions{display:flex;align-items:center;gap:8px}
   .enq{font-family:'Space Mono',monospace;font-size:11px;color:var(--jade);
     border:1px solid var(--jade);border-radius:9px;padding:8px 11px;text-decoration:none;white-space:nowrap}
-  .enq:hover{background:rgba(14,124,107,.08)}
+  .enq:hover{background:rgba(0,199,94,.08)}
   h1{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:26px;
     letter-spacing:-.02em;margin-bottom:18px}
   .add{background:var(--jade);color:#fff;border:none;border-radius:10px;
@@ -58,11 +58,11 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   .c-co{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-width:0}
   .c-logo{height:26px;max-width:120px;object-fit:contain}
   .c-co span{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;
-    letter-spacing:.14em;color:#0E7C6B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}
+    letter-spacing:.14em;color:#00C75E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}
   .c-av{width:104px;height:104px;border-radius:50%;overflow:hidden;flex-shrink:0;
     border:2px solid #EDE9E0;background:#fff;position:absolute;top:0;right:0}
   .c-av img{width:100%;height:100%;object-fit:cover}
-  .c-av.ph{background:linear-gradient(135deg,#0E7C6B,#23A08A);border:none;color:#fff;
+  .c-av.ph{background:linear-gradient(135deg,#00C75E,#23A08A);border:none;color:#fff;
     display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;
     font-size:34px;font-weight:700}
   .c-name{font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:700;color:#14181F;
@@ -130,7 +130,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     text-transform:uppercase;color:var(--muted);margin-bottom:6px}
   input{width:100%;font-size:16px;color:var(--ink);background:#fff;border:1px solid var(--line);
     border-radius:10px;padding:11px 13px}
-  input:focus{outline:none;border-color:var(--jade);box-shadow:0 0 0 3px rgba(14,124,107,.12)}
+  input:focus{outline:none;border-color:var(--jade);box-shadow:0 0 0 3px rgba(0,199,94,.14)}
   .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
   .logo-row{display:flex;align-items:center;gap:14px}
   .logo-prev{width:56px;height:56px;border-radius:10px;border:1px solid var(--line);
@@ -170,7 +170,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
 <div class="wrap">
   <header>
     <a class="brand" href="https://www.reallife.sg" title="Back to reallife.sg — Ecomwin">
-      <span class="mark">E</span>
+      <span class="mark" title="Ecomwin"><svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" width="26" height="26"><defs><linearGradient id="lm" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#00F07E"/><stop offset="1" stop-color="#00C75E"/></linearGradient></defs><rect x="96" y="80" width="248" height="62" rx="26" fill="url(#lm)"/><rect x="96" y="209" width="200" height="62" rx="26" fill="#FFC93C"/><rect x="96" y="338" width="248" height="62" rx="26" fill="url(#lm)"/><rect x="96" y="80" width="62" height="320" rx="26" fill="url(#lm)"/><circle cx="352" cy="240" r="31" fill="#C6FF2E"/></svg></span>
       <span class="brand-tx">Ecomwin<em>QR Card Wallet</em></span>
     </a>
     <div class="head-actions">
@@ -336,9 +336,35 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
       try{q=new QRCode(tmp,{width:size,height:size,correctLevel:levels[li]});q.makeCode(vc);made=true;}
       catch(e){q=null;}
     }
+    /* Bugfix (2026-08-13): the embedded lib THROWS (or silently draws blank) when the vCard
+       contains multibyte unicode (e.g. —, 中文, é). If the QR failed or rendered no dark pixels,
+       re-encode with an ASCII-sanitized copy so a scannable QR always appears. */
+    if(/[^\x00-\x7F]/.test(vc)&&(!made||(tmp&&tmp.querySelector('canvas')))){
+      var needSanitize=false;
+      if(!made){needSanitize=true;}
+      else{
+        var probe=tmp.querySelector('canvas');
+        if(probe){
+          var pctx=probe.getContext('2d');
+          var pd=pctx.getImageData(0,0,probe.width,probe.height).data;
+          var dark=0;
+          for(var pi=0;pi<pd.length;pi+=16){if(pd[pi]+pd[pi+1]+pd[pi+2]<300)dark++;}
+          if(dark===0)needSanitize=true;
+        }
+      }
+      if(needSanitize){
+        vc=vc.replace(/[^\x00-\x7F]/g,'?');
+        made=false;
+        for(var li2=0;li2<levels.length&&!made;li2++){
+          tmp=document.createElement('div');
+          try{q=new QRCode(tmp,{width:size,height:size,correctLevel:levels[li2]});q.makeCode(vc);made=true;}
+          catch(e2){q=null;}
+        }
+      }
+    }
     function done(){if(cb)cb();}
     function logo(){
-      if(!card.logo){done();return;}
+      if(!card.logo || typeof card.logo!=='string' || card.logo.length<50){done();return;}
       var img=new Image();
       img.onload=function(){
         var ls=Math.round(size*0.20),pad=Math.round(ls*0.20),box=ls+pad*2;
@@ -480,7 +506,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
       if(logoImg){
         ctx.drawImage(logoImg,pad,44,150,42);
       }
-      ctx.fillStyle='#0E7C6B';ctx.font='600 28px "Space Grotesk",sans-serif';
+      ctx.fillStyle='#00C75E';ctx.font='600 28px "Space Grotesk",sans-serif';
       ctx.textBaseline='alphabetic';ctx.letterSpacing='3px';
       ctx.fillText(fit(ctx,(c.org||'').toUpperCase(),coMax-8),pad,logoImg?112:82);
       ctx.letterSpacing='0px';
@@ -492,7 +518,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
         ctx.strokeStyle='#E7E3DA';ctx.lineWidth=3;ctx.beginPath();ctx.arc(ax+as/2,ay+as/2,as/2,0,Math.PI*2);ctx.stroke();
       } else if(c.layout==='avatar'){
         var as=280,ax=W-pad-as,ay=44;
-        ctx.fillStyle='#0E7C6B';ctx.beginPath();ctx.arc(ax+as/2,ay+as/2,as/2,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#00C75E';ctx.beginPath();ctx.arc(ax+as/2,ay+as/2,as/2,0,Math.PI*2);ctx.fill();
         ctx.fillStyle='#fff';ctx.font='700 100px "Space Grotesk",sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
         ctx.fillText(initials(fn),ax+as/2,ay+as/2+4);
         ctx.textAlign='left';ctx.textBaseline='alphabetic';
@@ -536,8 +562,8 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     }
     renderQR(qr,c,560,function(){
       var jobs=[document.fonts.ready];
-      if(c.logo)jobs.push(loadImg(c.logo));
-      if(c.avatar)jobs.push(loadImg(c.avatar));
+      if(c.logo && typeof c.logo==='string' && c.logo.length>50)jobs.push(loadImg(c.logo));
+      if(c.avatar && typeof c.avatar==='string' && c.avatar.length>50)jobs.push(loadImg(c.avatar));
       Promise.all(jobs).then(function(res){
         draw(res[1]||null,res[2]||null);
       });
