@@ -1,0 +1,578 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>羽毛球进阶框架 Badminton Pathway | Reallife</title>
+<meta name="description" content="中英对照羽毛球单打与双打进阶框架：级别、技能与达成标准。Bilingual badminton singles & doubles progression framework.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<style>
+/* Layout: a phone app shell. Sticky header (title + language), track switches,
+   a horizontal level rail styled like court tiles, then the skill list. Skills open in a bottom sheet. */
+:root{
+  --bg:#f3f6f3; --surface:#ffffff; --sunk:#e7eee9; --ink:#132620; --ink-2:#4b5f57; --line:#cfdcd5;
+  --court:#1b6a50; --court-ink:#ffffff; --court-soft:#dcebe3;
+  --cork:#c97a12; --cork-soft:#fbecd3;
+  --good:#1f7a4a; --warn:#a8650c;
+  --d0:#1b6a50; --d1:#2d5f9a; --d2:#8a4fa3; --d3:#b4532a; --d4:#0f7c86; --d5:#6b6a1f;
+  --shadow:0 10px 30px rgba(10,40,30,.18);
+  --f-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0c1814; --surface:#13231e; --sunk:#0f1e19; --ink:#e3eee8; --ink-2:#9db3a9; --line:#26403a;
+  --court:#3fae84; --court-ink:#06140f; --court-soft:#173a2f;
+  --cork:#f0ad45; --cork-soft:#3a2c14;
+  --good:#58c98d; --warn:#f0ad45;
+  --d0:#4fbf93; --d1:#78a9e8; --d2:#c493dd; --d3:#ec9065; --d4:#4fc6cf; --d5:#c9c76a;
+  --shadow:0 10px 30px rgba(0,0,0,.5); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0c1814; --surface:#13231e; --sunk:#0f1e19; --ink:#e3eee8; --ink-2:#9db3a9; --line:#26403a;
+  --court:#3fae84; --court-ink:#06140f; --court-soft:#173a2f;
+  --cork:#f0ad45; --cork-soft:#3a2c14;
+  --good:#58c98d; --warn:#f0ad45;
+  --d0:#4fbf93; --d1:#78a9e8; --d2:#c493dd; --d3:#ec9065; --d4:#4fc6cf; --d5:#c9c76a;
+  --shadow:0 10px 30px rgba(0,0,0,.5); color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55;-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--court)}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--cork);outline-offset:2px}
+.en{display:block;font-size:.84em;color:var(--ink-2);line-height:1.4;margin-top:1px}
+.inl-en{color:var(--ink-2);font-size:.86em}
+.wrap{max-width:640px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* Header: court green band with faint court lines */
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--court);color:var(--court-ink);
+  background-image:linear-gradient(90deg,transparent calc(50% - .5px),rgba(255,255,255,.14) 0 calc(50% + .5px),transparent 0),
+  linear-gradient(180deg,transparent 70%,rgba(255,255,255,.14) 0 calc(70% + 1px),transparent 0)}
+.hbar{display:flex;align-items:center;gap:12px;padding-block:10px}
+.brand{flex:1;min-width:0}
+.brand b{display:block;font-family:var(--f-display);font-weight:700;font-size:21px;letter-spacing:.02em;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand small{display:block;font-size:11.5px;opacity:.82;letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lang{display:flex;background:rgba(0,0,0,.18);border-radius:999px;padding:3px}
+.lang button{padding:5px 10px;border-radius:999px;font-size:13px;font-weight:500;color:inherit;opacity:.85;min-width:40px}
+.lang button[aria-pressed="true"]{background:var(--court-ink);color:var(--court);opacity:1}
+
+/* Track switches */
+.switches{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-block:12px 4px}
+.seg{display:flex;background:var(--sunk);border:1px solid var(--line);border-radius:12px;padding:3px}
+.seg button{flex:1;padding:7px 4px;border-radius:9px;font-size:14px;font-weight:500;color:var(--ink-2);line-height:1.2}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.seg .inl-en{display:block;font-size:11px}
+
+/* Level rail */
+.rail{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;padding-block:10px 12px;margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding-inline:max(16px,env(safe-area-inset-left,0px));scrollbar-width:none}
+.rail::-webkit-scrollbar{display:none}
+.tile{scroll-snap-align:start;flex:0 0 auto;width:92px;border:1.5px solid var(--line);border-radius:12px;background:var(--surface);padding:8px 9px 10px;text-align:left;position:relative;overflow:hidden}
+.tile .ln{font-family:var(--f-display);font-weight:700;font-size:26px;line-height:1;font-variant-numeric:tabular-nums}
+.tile .ln .bdg{font-size:17px;margin-left:4px;vertical-align:2px}
+.tile .nm{font-size:12.5px;font-weight:500;margin-top:4px;line-height:1.25;min-height:2.5em}
+.tile .nm .inl-en{display:block;font-size:11px}
+.tile .pbar{position:absolute;left:0;bottom:0;height:4px;background:var(--cork);transition:width .3s}
+.tile[aria-pressed="true"]{background:var(--court);border-color:var(--court);color:var(--court-ink)}
+.tile[aria-pressed="true"] .inl-en{color:inherit;opacity:.8}
+
+/* Level panel */
+main{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;display:grid;gap:12px}
+.ptitle{display:flex;align-items:flex-start;gap:12px}
+.ptitle .big{font-family:var(--f-display);font-weight:700;font-size:44px;line-height:.9;color:var(--court)}
+.ptitle h2{margin:0;font-size:19px;line-height:1.3;text-wrap:balance}
+.ptitle .sub{font-size:13px;color:var(--ink-2);margin-top:2px}
+.facts{display:flex;flex-wrap:wrap;gap:6px}
+.fact{font-size:12.5px;background:var(--sunk);border-radius:999px;padding:3px 10px;color:var(--ink-2)}
+.fact b{color:var(--ink);font-weight:500}
+.blk h3{margin:0 0 2px;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);font-weight:500}
+.blk p{margin:0}
+.quest{background:var(--cork-soft);border-radius:12px;padding:10px 12px}
+.quest h3{color:var(--warn)}
+
+/* Readiness */
+.ready{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center;border-top:1px dashed var(--line);padding-top:12px}
+.ring{width:54px;height:54px}
+.ring circle{fill:none;stroke-width:6}
+.ring .bgc{stroke:var(--sunk)}
+.ring .fgc{stroke:var(--court);stroke-linecap:round;transition:stroke-dasharray .4s}
+.ring text{font-family:var(--f-display);font-weight:700;font-size:15px;fill:var(--ink)}
+.ready .rl{font-size:13px;color:var(--ink-2);line-height:1.45}
+.ready .rl b{color:var(--ink);font-weight:500;font-variant-numeric:tabular-nums}
+.chip{display:inline-block;font-size:12px;font-weight:500;padding:2px 9px;border-radius:999px;margin-top:4px}
+.chip.ok{background:var(--court-soft);color:var(--good)}
+.chip.no{background:var(--sunk);color:var(--ink-2)}
+
+/* Domain filter + skills */
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;margin:20px 0 8px}
+.sec-h h2{margin:0;font-size:16px}
+.sec-h small{color:var(--ink-2);font-size:12.5px}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none;margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding-inline:max(16px,env(safe-area-inset-left,0px))}
+.chips::-webkit-scrollbar{display:none}
+.fchip{flex:0 0 auto;border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-size:13px;background:var(--surface);color:var(--ink-2);white-space:nowrap}
+.fchip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.fchip[aria-pressed="true"] .inl-en{color:inherit;opacity:.75}
+.list{display:grid;gap:8px;margin-top:6px}
+.skill{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px}
+.skill:active{transform:scale(.99)}
+.code{font-family:var(--f-display);font-weight:600;font-size:14px;letter-spacing:.02em;padding:4px 7px;border-radius:7px;color:var(--surface);background:var(--dc,var(--court));font-variant-numeric:tabular-nums;min-width:56px;text-align:center}
+.skill .nm{font-weight:500;line-height:1.35;min-width:0}
+.skill .dm{display:block;font-size:12px;color:var(--ink-2);font-weight:400;margin-top:2px}
+.meter{display:flex;gap:3px}
+.meter i{width:7px;height:18px;border-radius:2px;background:var(--sunk);border:1px solid var(--line)}
+.meter i.on{background:var(--cork);border-color:var(--cork)}
+.mixed-h{margin:14px 0 2px;font-size:13px;font-weight:500;color:var(--d2)}
+
+/* Bottom nav */
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--line);
+  padding:6px max(16px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+nav.tabs .in{max-width:640px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr)}
+nav.tabs button{display:grid;justify-items:center;gap:2px;padding:6px 2px;font-size:12px;color:var(--ink-2);line-height:1.2}
+nav.tabs svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8}
+nav.tabs button[aria-current="page"]{color:var(--court);font-weight:500}
+nav.tabs .inl-en{font-size:10.5px}
+
+/* Guide & assessment */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;margin-top:12px}
+.card h2{margin:0 0 10px;font-size:17px;text-wrap:balance}
+.card h3{margin:14px 0 6px;font-size:14px}
+.grade-row{display:grid;grid-template-columns:58px 1fr;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+.grade-row:first-of-type{border-top:0}
+.stars{color:var(--cork);font-size:13px;letter-spacing:-1px;line-height:1}
+.gnum{font-family:var(--f-display);font-weight:700;font-size:28px;line-height:1}
+.ul{margin:0;padding-left:18px;display:grid;gap:6px}
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:0;counter-reset:s}
+.steps li{display:grid;grid-template-columns:28px 1fr;gap:10px;padding:8px 0;position:relative}
+.steps li::before{counter-increment:s;content:counter(s);width:26px;height:26px;border-radius:50%;background:var(--court);color:var(--court-ink);font-family:var(--f-display);font-weight:700;display:grid;place-items:center;font-size:15px}
+.steps li:not(:last-child)::after{content:"";position:absolute;left:12.5px;top:36px;bottom:-4px;width:1.5px;background:var(--line)}
+.tbl-wrap{overflow-x:auto;margin-inline:-4px}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{text-align:left;padding:8px 6px;border-top:1px solid var(--line);vertical-align:top}
+th{font-weight:500;color:var(--ink-2);font-size:12px;border-top:0}
+td.num{font-family:var(--f-display);font-weight:600;font-size:16px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.calc{display:grid;gap:14px}
+.calc label{display:grid;gap:4px;font-size:13.5px}
+.calc .row{display:flex;justify-content:space-between;align-items:baseline}
+.calc output{font-family:var(--f-display);font-weight:700;font-size:18px;font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--court)}
+.result{display:flex;align-items:center;gap:14px;background:var(--court-soft);border-radius:12px;padding:12px}
+.result .big{font-family:var(--f-display);font-weight:700;font-size:40px;line-height:1;color:var(--court)}
+.note{font-size:12.5px;color:var(--ink-2);margin:10px 0 0}
+
+/* Bottom sheet */
+.scrim{position:fixed;inset:0;background:rgba(5,15,12,.45);z-index:40;opacity:0;transition:opacity .2s}
+.scrim.show{opacity:1}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:41;background:var(--surface);border-radius:20px 20px 0 0;box-shadow:var(--shadow);
+  max-height:88%;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .25s ease}
+.sheet.show{transform:none}
+.sheet .grab{width:40px;height:4px;border-radius:2px;background:var(--line);margin:8px auto 0}
+.sheet .sh{display:flex;gap:12px;align-items:flex-start;padding:12px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));border-bottom:1px solid var(--line)}
+.sheet .sh h2{margin:0;font-size:18px;line-height:1.3;flex:1;min-width:0;text-wrap:balance}
+.sheet .sh .dm{font-size:12.5px;color:var(--ink-2);margin-top:4px}
+.xbtn{width:34px;height:34px;border-radius:50%;background:var(--sunk);display:grid;place-items:center;flex:0 0 auto}
+.xbtn svg{width:16px;height:16px;stroke:var(--ink);stroke-width:2.2}
+.sheet .sb{overflow-y:auto;padding:14px max(16px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));max-width:640px;width:100%;margin:0 auto}
+.hint{font-size:12.5px;color:var(--ink-2);margin:0 0 10px}
+.ladder{display:grid;gap:8px}
+.rung{display:grid;grid-template-columns:44px 1fr;gap:12px;width:100%;text-align:left;border:1.5px solid var(--line);border-radius:14px;padding:12px;background:var(--surface);position:relative}
+.rung .gnum{color:var(--ink-2)}
+.rung .gname{font-weight:700;font-size:15px}
+.rung .gdef{font-size:12.5px;color:var(--ink-2);margin-top:2px}
+.rung .crit{margin-top:8px;background:var(--sunk);border-radius:9px;padding:7px 10px;font-size:14px}
+.rung .crit small{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2)}
+.rung.reached{border-color:var(--cork);background:linear-gradient(0deg,var(--cork-soft),var(--cork-soft))}
+.rung.reached .gnum{color:var(--cork)}
+.rung.current::after{content:attr(data-me);position:absolute;top:10px;right:10px;font-size:11px;font-weight:500;background:var(--cork);color:var(--surface);padding:2px 8px;border-radius:999px}
+.rung.assumed{opacity:.6;border-style:dashed;cursor:default}
+.sheet .acts{display:flex;gap:8px;margin-top:12px}
+.btn{flex:1;border:1px solid var(--line);border-radius:12px;padding:10px;font-size:14px;font-weight:500;background:var(--surface)}
+.btn.pri{background:var(--court);color:var(--court-ink);border-color:var(--court)}
+.confirm{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--cork-soft);border-radius:12px;padding:10px 12px;margin-top:10px;font-size:13.5px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+/* Base reset (standalone page) */
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}img{max-width:100%}[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap hbar">
+    <div class="brand"><b id="appTitle"></b><small id="appSub"></small></div>
+    <div class="lang" role="group" aria-label="Language">
+      <button id="lang-zh" data-lang="zh">中文</button>
+      <button id="lang-en" data-lang="en">EN</button>
+      <button id="lang-bi" data-lang="bi">双语</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="switches">
+    <div class="seg" role="group" id="fmtSeg"></div>
+    <div class="seg" role="group" id="trackSeg"></div>
+  </div>
+  <section id="view"></section>
+</main>
+
+<nav class="tabs" aria-label="Sections"><div class="in" id="tabs"></div></nav>
+
+<div class="scrim" id="scrim" hidden></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" hidden></div>
+
+<script>
+const DATA = {"singles":{"kids":{"notes":[{"zh":"每节课 ≥ 50% 时间以游戏形式进行（L1–L3）。","en":"≥ 50% of each session is game-based (L1–L3)."},{"zh":"8 岁以下建议使用短柄拍（53–58cm）、低网（1.3–1.4m）、迷你场地。","en":"Under 8: short racket (53–58cm), lower net (1.3–1.4m), mini court."},{"zh":"L1–L3 不做杀球大力量专项，不做负重训练。","en":"No heavy smash or weighted strength work at L1–L3."},{"zh":"用徽章、星星卡、闯关等方式激励。","en":"Motivate with badges, star cards and \"quest\" challenges."},{"zh":"每 8 周给家长一次书面反馈。","en":"Written parent feedback every 8 weeks."}],"levels":{"L1":{"goal":{"zh":"喜欢羽毛球，建立手眼协调和基本移动能力。","en":"Enjoy badminton; build hand-eye coordination and basic movement."},"quest":{"zh":"颠球 10 次 + 发球过网 5/10 + 与教练连续对打 5 拍。","en":"Keep-ups ×10 + serve over net 5/10 + 5-shot rally with coach."},"skills":[{"code":"G1-01","zh":"正手握拍（握手式）","en":"Forehand \"handshake\" grip","group":null,"grades":{"1":{"zh":"提示下握对","en":"Correct with reminder"},"2":{"zh":"自己握对","en":"Self-correct"},"3":{"zh":"击球中保持","en":"Holds during play"},"4":{"zh":"自然、放松","en":"Natural & relaxed"}}},{"code":"G1-02","zh":"准备姿势","en":"Ready position","group":null,"grades":{"1":{"zh":"能模仿","en":"Can copy"},"2":{"zh":"提示后做出","en":"On cue"},"3":{"zh":"每球前主动做","en":"Before each shot"},"4":{"zh":"游戏中保持","en":"Keeps it in games"}}},{"code":"P1-01","zh":"手眼协调：颠球","en":"Keep-ups","group":null,"grades":{"1":{"zh":"1–3 次","en":"1–3 reps"},"2":{"zh":"4–9 次","en":"4–9 reps"},"3":{"zh":"10–19 次","en":"10–19 reps"},"4":{"zh":"≥ 20 次","en":"≥ 20 reps"}}},{"code":"P1-02","zh":"抛接球","en":"Throw & catch","group":null,"grades":{"1":{"zh":"接住 3/10","en":"Catches 3/10"},"2":{"zh":"5/10","en":"5/10"},"3":{"zh":"7/10","en":"7/10"},"4":{"zh":"9/10 且移动中","en":"while moving"}}},{"code":"F1-01","zh":"侧滑步","en":"Side shuffle","group":null,"grades":{"1":{"zh":"能做","en":"Can do"},"2":{"zh":"不交叉脚","en":"No foot crossing"},"3":{"zh":"6m 往返流畅","en":"Fluent over 6m"},"4":{"zh":"游戏中使用","en":"Used in games"}}},{"code":"S1-01","zh":"正手发球（下手）","en":"Forehand underarm serve","group":null,"grades":{"1":{"zh":"能击中","en":"Makes contact"},"2":{"zh":"过网 3/10","en":"Over net 3/10"},"3":{"zh":"过网 7/10","en":"Over net 7/10"},"4":{"zh":"发到指定半区","en":"To target half"}}},{"code":"R1-01","zh":"抛球击打","en":"Overhead throw-hit","group":null,"grades":{"1":{"zh":"过肩动作","en":"Overarm action"},"2":{"zh":"抛球后击中","en":"Hits tossed shuttle"},"3":{"zh":"击过网 7/10","en":"Hits over net 7/10"},"4":{"zh":"有转体","en":"With rotation"}}},{"code":"X1-01","zh":"球场礼仪","en":"Court etiquette","group":null,"grades":{"1":{"zh":"知道打招呼、捡球","en":"Greets & collects shuttles"},"2":{"zh":"主动做","en":"Does it unprompted"},"3":{"zh":"每次都做","en":"Always"},"4":{"zh":"提醒同伴","en":"Reminds others"}}}]},"L2":{"goal":{"zh":"能与同伴连续对打，认识基本球路和场地。","en":"Rally with a partner; learn basic shots and court lines."},"quest":{"zh":"与同伴连续对拉 15 拍；高远发球进后场 6/10。","en":"15-shot rally with a peer; high serve to rear court 6/10."},"skills":[{"code":"G2-01","zh":"反手握拍（拇指顶）","en":"Backhand thumb grip","group":null,"grades":{"1":{"zh":"提示下握对","en":"With reminder"},"2":{"zh":"自己握对","en":"Self"},"3":{"zh":"能正反转换","en":"Can switch"},"4":{"zh":"对打中自动转换","en":"Auto-switch in rally"}}},{"code":"F2-01","zh":"中心位与回位","en":"Base & recovery","group":null,"grades":{"1":{"zh":"知道中心位","en":"Knows base"},"2":{"zh":"提示后回位","en":"On cue"},"3":{"zh":"每球后回位 7/10","en":"Recovers after each shot 7/10"},"4":{"zh":"游戏中主动回位","en":"In games"}}},{"code":"F2-02","zh":"前后移动（网前上网一步）","en":"Forward/back step","group":null,"grades":{"1":{"zh":"能做","en":"Can do"},"2":{"zh":"动作正确","en":"Correct"},"3":{"zh":"往返 5 次流畅 5","en":"5 reps fluent"},"4":{"zh":"游戏中使用","en":"In games"}}},{"code":"S2-01","zh":"正手高远发球","en":"Forehand high serve","group":null,"grades":{"1":{"zh":"能发高","en":"Gets height"},"2":{"zh":"过发球线 5/10","en":"Past service line 5/10"},"3":{"zh":"进后场 6/10","en":"Into rear court 6/10"},"4":{"zh":"比赛中稳定","en":"Consistent in games"}}},{"code":"R2-01","zh":"正手高远球（原地）","en":"Forehand clear (static)","group":null,"grades":{"1":{"zh":"过网","en":"Over net"},"2":{"zh":"过中线 5/10","en":"Past mid-court 5/10"},"3":{"zh":"过后发球线 6/10","en":"Past long service line 6/10"},"4":{"zh":"与同伴对拉","en":"Rallies with partner"}}},{"code":"N2-01","zh":"网前挑球（下手）","en":"Underarm lift","group":null,"grades":{"1":{"zh":"能挑起","en":"Lifts up"},"2":{"zh":"过中线 5/10","en":"Past mid-court 5/10"},"3":{"zh":"到后场 6/10","en":"To rear court 6/10"},"4":{"zh":"移动中挑","en":"While moving"}}},{"code":"N2-02","zh":"网前放网（手抛）","en":"Net shot (hand feed)","group":null,"grades":{"1":{"zh":"过网","en":"Over net"},"2":{"zh":"不出发球线 5/10","en":"Inside service line 5/10"},"3":{"zh":"贴网 6/10","en":"Tight to net 6/10"},"4":{"zh":"游戏中使用","en":"In games"}}},{"code":"X2-01","zh":"场地线与界内外","en":"Court lines","group":null,"grades":{"1":{"zh":"认识单打线","en":"Knows singles lines"},"2":{"zh":"能判断","en":"Can call"},"3":{"zh":"判断准确","en":"Accurate"},"4":{"zh":"自己裁判","en":"Self-umpire"}}}]},"L3":{"goal":{"zh":"动作基本规范，能打满后场，懂计分，开始打比赛。","en":"Correct basic technique, clear to baseline, know scoring, start playing matches."},"quest":{"zh":"打一场 11 分正式比赛并独立计分；高远球到底线 1/3 7/10。","en":"Play an 11-point match with self-scoring; clear to rear third 7/10."},"skills":[{"code":"F3-01","zh":"启动步（分腿垫步）","en":"Split step","group":null,"grades":{"1":{"zh":"能模仿","en":"Copy"},"2":{"zh":"喂球时做","en":"With feed"},"3":{"zh":"对打中做 7/10","en":"7/10 In rally"},"4":{"zh":"比赛中自然","en":"Natural in matches"}}},{"code":"F3-02","zh":"后场正手后退步法","en":"Forehand rear footwork","group":null,"grades":{"1":{"zh":"认识步法","en":"Knows pattern"},"2":{"zh":"无球流畅","en":"Shadow fluent"},"3":{"zh":"多球中正确","en":"In multi-feed"},"4":{"zh":"比赛中到位","en":"In matches"}}},{"code":"F3-03","zh":"网前蹬跨步","en":"Net lunge","group":null,"grades":{"1":{"zh":"能做","en":"Can do"},"2":{"zh":"膝不过脚尖","en":"Knee aligned"},"3":{"zh":"回位快","en":"Quick recovery"},"4":{"zh":"比赛中使用","en":"In matches"}}},{"code":"S3-01","zh":"反手网前发球","en":"Backhand low serve","group":null,"grades":{"1":{"zh":"过网","en":"Over net"},"2":{"zh":"落区 5/10","en":"In zone 5/10"},"3":{"zh":"低且落区 7/10","en":"Low & in zone 7/10"},"4":{"zh":"比赛中首选","en":"Default in matches"}}},{"code":"R3-01","zh":"正手高远球（移动）","en":"Forehand clear (moving)","group":null,"grades":{"1":{"zh":"移动后击","en":"Hits after moving"},"2":{"zh":"过后发球线 5/10","en":"Past long service line 5/10"},"3":{"zh":"到底线 1/3 7/10","en":"To rear third 7/10"},"4":{"zh":"比赛中压底线","en":"Pushes to baseline"}}},{"code":"R3-02","zh":"正手吊球","en":"Forehand drop","group":null,"grades":{"1":{"zh":"过网","en":"Over net"},"2":{"zh":"落前场 5/10","en":"Lands front court 5/10"},"3":{"zh":"前场且不高 7/10","en":"Front court & tight 7/10"},"4":{"zh":"与高远球同动作","en":"Disguised with clear"}}},{"code":"R3-03","zh":"杀球入门","en":"Intro smash","group":null,"grades":{"1":{"zh":"动作框架","en":"Shape"},"2":{"zh":"向下 5/10","en":"Downward 5/10"},"3":{"zh":"向下且入界 7/10","en":"Downward & in 7/10"},"4":{"zh":"抓机会杀","en":"Picks right ball"}}},{"code":"N3-01","zh":"搓球入门","en":"Intro spin net","group":null,"grades":{"1":{"zh":"认识","en":"Aware"},"2":{"zh":"能搓过 5/10","en":"Spins it over 5/10"},"3":{"zh":"贴网 6/10","en":"Tight to net 6/10"},"4":{"zh":"比赛中使用","en":"In matches"}}},{"code":"T3-01","zh":"单打基本思路：打四角","en":"Basic singles: hit to corners","group":null,"grades":{"1":{"zh":"知道概念","en":"Knows idea"},"2":{"zh":"喂球打四角","en":"With feed"},"3":{"zh":"对打中打四角","en":"In rally"},"4":{"zh":"比赛中调动对手","en":"Moves opponent in matches"}}},{"code":"X3-01","zh":"计分规则（21 分制）","en":"Scoring (21-point)","group":null,"grades":{"1":{"zh":"知道","en":"Knows"},"2":{"zh":"能自己计分","en":"Self-score"},"3":{"zh":"能当裁判","en":"Can umpire"},"4":{"zh":"比赛中无错","en":"Error-free"}}},{"code":"P3-01","zh":"灵敏：六点移动","en":"Agility: 6-point","group":null,"grades":{"1":{"zh":"能完成","en":"Completes"},"2":{"zh":"<45s ×2 轮","en":"<45s × 2 rounds"},"3":{"zh":"<38s","en":"<38s"},"4":{"zh":"<32s","en":"<32s"}}}]},"L4":{"goal":{"zh":"四方球稳定，掌握头顶与反手过渡，有初步战术。","en":"Consistent 4-corner game, round-the-head & backhand, basic tactics."},"quest":{"zh":"四方步法多球 20 球；参加一次俱乐部内部赛。","en":"4-corner multi-feed 20 shuttles; play one in-club tournament."},"skills":[{"code":"F4-01","zh":"四方步法 4-","en":"4- corner footwork","group":null,"grades":{"1":{"zh":"知道路线","en":"Knows routes"},"2":{"zh":"无球连贯","en":"Shadow fluent"},"3":{"zh":"多球 20 球不乱 20-","en":"20- shuttle multi-feed"},"4":{"zh":"比赛中到位","en":"In matches"}}},{"code":"R4-01","zh":"头顶高远/吊球","en":"Round-the-head clear/drop","group":null,"grades":{"1":{"zh":"动作框架","en":"Shape"},"2":{"zh":"过网 5/10","en":"Over net 5/10"},"3":{"zh":"到位 7/10","en":"On target 7/10"},"4":{"zh":"比赛中主动用","en":"Uses actively"}}},{"code":"R4-02","zh":"反手高远球（过渡）","en":"Backhand clear","group":null,"grades":{"1":{"zh":"能击中","en":"Contact"},"2":{"zh":"过中线 5/10","en":"Past mid-court 5/10"},"3":{"zh":"过后发球线 6/10","en":"Past long service line 6/10"},"4":{"zh":"被动时救球","en":"Used under pressure"}}},{"code":"R4-03","zh":"正手杀球","en":"Forehand smash","group":null,"grades":{"1":{"zh":"向下","en":"Downward"},"2":{"zh":"落中场 5/10","en":"Lands mid-court 5/10"},"3":{"zh":"线路可控 7/10","en":"Controlled placement 7/10"},"4":{"zh":"杀上网连贯","en":"Smash-and-follow"}}},{"code":"M4-01","zh":"接杀（挡网/抽挡）","en":"Smash defence (block)","group":null,"grades":{"1":{"zh":"能碰到","en":"Touches"},"2":{"zh":"挡过网 5/10","en":"Blocks over net 5/10"},"3":{"zh":"挡网前 6/10","en":"Blocks to net 6/10"},"4":{"zh":"比赛中化解","en":"Neutralises in matches"}}},{"code":"N4-01","zh":"搓球 / 放网","en":"Spin net / tight net","group":null,"grades":{"1":{"zh":"过网","en":"Over net"},"2":{"zh":"贴网 5/10","en":"Tight to net 5/10"},"3":{"zh":"贴网 7/10","en":"Tight to net 7/10"},"4":{"zh":"制造机会","en":"Creates chances"}}},{"code":"N4-02","zh":"推球 / 勾对角","en":"Push / cross-net","group":null,"grades":{"1":{"zh":"认识","en":"Aware"},"2":{"zh":"能做 5/10","en":"Can do 5/10"},"3":{"zh":"到位 6/10","en":"On target 6/10"},"4":{"zh":"比赛中使用","en":"In matches"}}},{"code":"S4-01","zh":"接发球","en":"Return of serve","group":null,"grades":{"1":{"zh":"能回","en":"Returns"},"2":{"zh":"有线路 5/10","en":"With placement 5/10"},"3":{"zh":"主动 7/10","en":"Proactive 7/10"},"4":{"zh":"抢攻","en":"Attacks short serve"}}},{"code":"T4-01","zh":"拉吊结合","en":"Clear-drop combination","group":null,"grades":{"1":{"zh":"知道","en":"Knows"},"2":{"zh":"配合中做","en":"In drill"},"3":{"zh":"对练中做","en":"In rally"},"4":{"zh":"比赛中有效","en":"Effective in matches"}}},{"code":"P4-01","zh":"耐力：多球 30 球","en":"Endurance: 30-shuttle multi-feed","group":null,"grades":{"1":{"zh":"能完成","en":"Completes"},"2":{"zh":"质量保持一半","en":"Quality half"},"3":{"zh":"质量保持","en":"Quality throughout"},"4":{"zh":"连续 2 组 2","en":"2 sets"}}},{"code":"X4-01","zh":"赛前热身与情绪控制","en":"Warm-up & emotions","group":null,"grades":{"1":{"zh":"知道","en":"Knows"},"2":{"zh":"提示后做","en":"On cue"},"3":{"zh":"自己做","en":"Independent"},"4":{"zh":"落后时稳定","en":"Stays calm when behind"}}}]},"L5":{"goal":{"zh":"有进攻武器，能打对抗，开始参加地区比赛。","en":"Have attacking weapons; play under pressure; enter local competitions."},"quest":null,"skills":[{"code":"F5-01","zh":"起跳击球 / 突击步","en":"Jump & attacking footwork","group":null,"grades":{"1":{"zh":"能做","en":"Can do"},"2":{"zh":"落地平衡","en":"Balanced landing"},"3":{"zh":"连贯回位","en":"Fluent recovery"},"4":{"zh":"比赛中抢点","en":"Takes early in matches"}}},{"code":"R5-01","zh":"劈吊 / 滑板吊","en":"Slice / reverse slice drop","group":null,"grades":{"1":{"zh":"认识","en":"Aware"},"2":{"zh":"落前场 5/10","en":"Lands front court 5/10"},"3":{"zh":"有角度 7/10","en":"With angle 7/10"},"4":{"zh":"有隐蔽性","en":"Disguised"}}},{"code":"R5-02","zh":"杀直线 / 对角","en":"Straight & cross smash","group":null,"grades":{"1":{"zh":"能控制","en":"Some control"},"2":{"zh":"线路 5/10","en":"Placement 5/10"},"3":{"zh":"线路 7/10","en":"Placement 7/10"},"4":{"zh":"按战术选择","en":"Tactical choice"}}},{"code":"R5-03","zh":"反手吊球 / 反手高远到底线","en":"Backhand drop / full-length backhand clear","group":null,"grades":{"1":{"zh":"能做","en":"Can do"},"2":{"zh":"5/10","en":"5/10"},"3":{"zh":"7/10","en":"7/10"},"4":{"zh":"比赛中主动用","en":"Proactive"}}},{"code":"M5-01","zh":"接杀反抽 / 挑后场","en":"Counter-drive & lift from defence","group":null,"grades":{"1":{"zh":"能碰到","en":"Touches it"},"2":{"zh":"5/10","en":"5/10"},"3":{"zh":"7/10","en":"7/10"},"4":{"zh":"防守转攻","en":"Defence to attack"}}},{"code":"N5-01","zh":"网前扑球","en":"Net kill","group":null,"grades":{"1":{"zh":"能做","en":"Can do"},"2":{"zh":"不触网 5/10","en":"No net touch 5/10"},"3":{"zh":"7/10","en":"7/10"},"4":{"zh":"抓机会","en":"Opportunistic"}}},{"code":"S5-01","zh":"平高球发球","en":"Flick serve","group":null,"grades":{"1":{"zh":"能做","en":"Can do"},"2":{"zh":"过头 5/10","en":"Over receiver 5/10"},"3":{"zh":"隐蔽 6/10","en":"Disguised 6/10"},"4":{"zh":"战术混用","en":"Mixed tactically"}}},{"code":"T5-01","zh":"控制与压迫：控网、压后场","en":"Control & pressure","group":null,"grades":{"1":{"zh":"知道","en":"Knows"},"2":{"zh":"对练中做","en":"Does it in drills"},"3":{"zh":"对抗中做","en":"Does it under pressure"},"4":{"zh":"比赛中执行赛前计划","en":"Executes game plan"}}},{"code":"T5-02","zh":"观察对手弱点","en":"Read opponent's weakness","group":null,"grades":{"1":{"zh":"赛后能说出","en":"Post-match"},"2":{"zh":"局间能说出","en":"Between games"},"3":{"zh":"比赛中调整","en":"Adjusts"},"4":{"zh":"主动设计得分","en":"Designs points"}}},{"code":"P5-01","zh":"专项体能（速度、核心）","en":"Speed & core","group":null,"grades":{"1":{"zh":"测试基线","en":"Baseline"},"2":{"zh":"提升 10%","en":"Improves 10%"},"3":{"zh":"达到年龄常模","en":"Age norm"},"4":{"zh":"优于常模","en":"Above norm"}}},{"code":"X5-01","zh":"比赛心理：关键分","en":"Pressure points","group":null,"grades":{"1":{"zh":"意识到","en":"Aware"},"2":{"zh":"有固定程序","en":"Has routine"},"3":{"zh":"用程序稳定","en":"Uses routine"},"4":{"zh":"关键分敢打","en":"Plays bravely"}}}]},"L6":{"goal":{"zh":"全面技术 + 稳定战术 + 系统体能，冲击省市级比赛。","en":"Complete technique, consistent tactics, structured fitness; target provincial events."},"quest":null,"skills":[{"code":"R6-01","zh":"全场进攻组合（杀—上网—扑）","en":"Full attacking sequence","group":null,"grades":{"3":{"zh":"多球中 8/10 连贯 8/10","en":"8/10 fluent in multi-feed"},"4":{"zh":"比赛中得分率提高","en":"Increases point-win rate"}}},{"code":"R6-02","zh":"假动作（假吊真杀、停顿）","en":"Deception","group":null,"grades":{"3":{"zh":"对练中 6/10 有效","en":"6/10 effective in drills"},"4":{"zh":"比赛中造成对手误判","en":"Wrong-foots opponents"}}},{"code":"M6-01","zh":"全场防守（接杀到底线）","en":"Full-court defence","group":null,"grades":{"3":{"zh":"接杀 8/10 到后场","en":"Smash returns 8/10 to rear court"},"4":{"zh":"被动转主动","en":"Turns defence into attack"}}},{"code":"N6-01","zh":"网前细腻技术（勾、推、搓组合）","en":"Fine net play","group":null,"grades":{"3":{"zh":"8/10 到位","en":"8/10 on target"},"4":{"zh":"网前主导比赛","en":"Dominates net"}}},{"code":"T6-01","zh":"比赛计划与复盘","en":"Game plan & review","group":null,"grades":{"3":{"zh":"能写赛前计划","en":"Writes plan"},"4":{"zh":"能执行并赛后视频复盘","en":"Executes & video-reviews"}}},{"code":"P6-01","zh":"周期化体能","en":"Periodised fitness","group":null,"grades":{"3":{"zh":"按计划完成","en":"Follows plan"},"4":{"zh":"测试持续提高","en":"Test scores keep improving"}}},{"code":"X6-01","zh":"自我管理（饮食、睡眠、伤病预防）","en":"Self-management","group":null,"grades":{"3":{"zh":"有记录","en":"Logs"},"4":{"zh":"习惯化","en":"Habitual"}}}]}}},"adults":{"notes":[{"zh":"成人常见问题是\"野路子\"动作，**纠错优先于加新技术**。","en":"Adults often have self-taught habits — **correction comes before new skills**."},{"zh":"每节课包含 10–15 分钟热身（动态拉伸、肩袖激活）。","en":"Every session has 10–15 min warm-up (dynamic stretching, rotator-cuff activation)."},{"zh":"重点防伤部位：**肩、肘（网球肘）、膝、跟腱、腰**。","en":"Injury focus: **shoulder, elbow, knee, Achilles, lower back**."},{"zh":"40 岁以上学员：起跳、急停类训练量减半，增加恢复。","en":"40+: halve jump/stop-start volume, add recovery time."},{"zh":"用视频对比（入学 vs 每 8 周）帮助成人看到进步。","en":"Use video comparison (intake vs every 8 weeks) to show progress."}],"levels":{"L1":{"goal":{"zh":"正确握拍和基本击球框架，能简单对打。","en":"Correct grip and basic stroke shape; simple rallies."},"quest":null,"skills":[{"code":"G1-01","zh":"正手握拍","en":"Forehand grip","group":null,"grades":{"1":{"zh":"提示下正确","en":"With reminder"},"2":{"zh":"自己正确","en":"Self"},"3":{"zh":"击球中保持","en":"Holds"},"4":{"zh":"放松握拍、发力时握紧","en":"Relaxed, tightens at impact"}}},{"code":"G1-02","zh":"反手握拍","en":"Backhand grip","group":null,"grades":{"1":{"zh":"提示下正确","en":"Correct with reminder"},"2":{"zh":"自己正确","en":"Self-corrects"},"3":{"zh":"能转换","en":"Switches"},"4":{"zh":"对打中自动","en":"Auto"}}},{"code":"G1-03","zh":"准备姿势","en":"Ready position","group":null,"grades":{"1":{"zh":"能模仿","en":"Can copy"},"2":{"zh":"提示后做","en":"Does it on cue"},"3":{"zh":"每球前做","en":"Before each shot"},"4":{"zh":"自然","en":"Natural"}}},{"code":"S1-01","zh":"正手发高球","en":"Forehand high serve","group":null,"grades":{"1":{"zh":"能过网","en":"Over net"},"2":{"zh":"过中线 5/10","en":"Past mid-court 5/10"},"3":{"zh":"过后发球线 6/10","en":"Past long service line 6/10"},"4":{"zh":"比赛中稳定","en":"Consistent"}}},{"code":"R1-01","zh":"正手高远球（原地）","en":"Forehand clear (static)","group":null,"grades":{"1":{"zh":"动作框架","en":"Shape"},"2":{"zh":"过中线 5/10","en":"Past mid-court 5/10"},"3":{"zh":"过后发球线 6/10","en":"Past long service line 6/10"},"4":{"zh":"对拉 10 拍 10-","en":"10- shot rally"}}},{"code":"N1-01","zh":"下手挑球","en":"Underarm lift","group":null,"grades":{"1":{"zh":"能挑起","en":"Lifts it up"},"2":{"zh":"过中线 5/10","en":"Past mid-court 5/10"},"3":{"zh":"到后场 6/10","en":"To rear court 6/10"},"4":{"zh":"移动中","en":"Moving"}}},{"code":"F1-01","zh":"并步 / 侧滑步","en":"Chassé","group":null,"grades":{"1":{"zh":"能做","en":"Can do"},"2":{"zh":"正确","en":"Correct"},"3":{"zh":"流畅","en":"Fluent"},"4":{"zh":"对打中","en":"In rally"}}},{"code":"P1-01","zh":"热身与放松流程","en":"Warm-up & cool-down","group":null,"grades":{"1":{"zh":"知道","en":"Knows"},"2":{"zh":"跟做","en":"Follows"},"3":{"zh":"自己做","en":"Independent"},"4":{"zh":"每次都做","en":"Always"}}}]},"L2":{"goal":{"zh":"纠正错误动作，掌握基本球路，认识单打规则。","en":"Fix bad habits, learn basic shots, know singles rules."},"quest":null,"skills":[{"code":"R2-01","zh":"正手高远球：侧身、转体、鞭打","en":"Forehand clear: side-on, rotation, whip","group":null,"grades":{"1":{"zh":"知道要点","en":"Knows keys"},"2":{"zh":"无球正确","en":"Shadow correct"},"3":{"zh":"击球正确 7/10","en":"Correct contact 7/10"},"4":{"zh":"到底线 1/3","en":"1/3 Rear third"}}},{"code":"S2-01","zh":"反手网前发球","en":"Backhand low serve","group":null,"grades":{"1":{"zh":"过网","en":"Over net"},"2":{"zh":"落区 5/10","en":"In zone 5/10"},"3":{"zh":"低且落区 7/10","en":"Low & in zone 7/10"},"4":{"zh":"比赛中首选","en":"Default"}}},{"code":"N2-01","zh":"网前放网","en":"Net shot","group":null,"grades":{"1":{"zh":"过网","en":"Over net"},"2":{"zh":"不出前发球线 5/10","en":"Inside short service line 5/10"},"3":{"zh":"贴网 7/10","en":"Tight to net 7/10"},"4":{"zh":"比赛中使用","en":"Used in matches"}}},{"code":"N2-02","zh":"网前挑后场","en":"Net lift to rear","group":null,"grades":{"1":{"zh":"过中线","en":"Past mid-court"},"2":{"zh":"到后场 5/10","en":"To rear court 5/10"},"3":{"zh":"到底线 1/3 6/10","en":"To rear third 6/10"},"4":{"zh":"被动时高质量","en":"Quality under pressure"}}},{"code":"F2-01","zh":"中心位与回位","en":"Base & recovery","group":null,"grades":{"1":{"zh":"知道","en":"Knows"},"2":{"zh":"提示后","en":"On cue"},"3":{"zh":"每球后 7/10","en":"After each shot 7/10"},"4":{"zh":"自然","en":"Natural"}}},{"code":"F2-02","zh":"上网两步 / 三步","en":"Net approach (2–3 step)","group":null,"grades":{"1":{"zh":"知道","en":"Knows"},"2":{"zh":"无球正确","en":"Correct in shadow"},"3":{"zh":"有球正确","en":"Correct with shuttle"},"4":{"zh":"比赛中","en":"In matches"}}},{"code":"X2-01","zh":"单打规则与发球站位","en":"Singles rules & serving positions","group":null,"grades":{"1":{"zh":"知道","en":"Knows"},"2":{"zh":"能说清","en":"Explains"},"3":{"zh":"无错误","en":"Error-free"},"4":{"zh":"能当裁判","en":"Can umpire"}}}]},"L3":{"goal":{"zh":"规范步法，后场技术成套，能打完整比赛。","en":"Structured footwork, full rear-court set, play full matches."},"quest":null,"skills":[{"code":"F3-01","zh":"启动步","en":"Split step","group":null,"grades":{"1":{"zh":"能做","en":"Can do"},"2":{"zh":"喂球时","en":"With feed"},"3":{"zh":"对打中 7/10","en":"In rally 7/10"},"4":{"zh":"比赛中自然","en":"Natural in matches"}}},{"code":"F3-02","zh":"后场正手/头顶后退步法","en":"Rear footwork (forehand & round-the-head)","group":null,"grades":{"1":{"zh":"认识","en":"Aware"},"2":{"zh":"无球流畅","en":"Fluent in shadow"},"3":{"zh":"多球正确","en":"Correct in multi-feed"},"4":{"zh":"比赛中到位","en":"In position in matches"}}},{"code":"F3-03","zh":"网前蹬跨步与回位","en":"Lunge & recovery","group":null,"grades":{"1":{"zh":"能做","en":"Can do"},"2":{"zh":"膝对脚尖","en":"Knee aligned"},"3":{"zh":"回位迅速","en":"Quick recovery"},"4":{"zh":"比赛中","en":"In matches"}}},{"code":"R3-01","zh":"正手吊球","en":"Forehand drop","group":null,"grades":{"1":{"zh":"过网","en":"Over net"},"2":{"zh":"落前场 5/10","en":"Lands front court 5/10"},"3":{"zh":"7/10","en":"7/10"},"4":{"zh":"与高远同动作","en":"Disguised"}}},{"code":"R3-02","zh":"正手杀球","en":"Forehand smash","group":null,"grades":{"1":{"zh":"框架","en":"Basic shape"},"2":{"zh":"向下 5/10","en":"Downward 5/10"},"3":{"zh":"入界 7/10","en":"In 7/10"},"4":{"zh":"选球合理","en":"Right ball"}}},{"code":"R3-03","zh":"头顶高远球","en":"Round-the-head clear","group":null,"grades":{"1":{"zh":"框架","en":"Basic shape"},"2":{"zh":"过中线 5/10","en":"Past mid-court 5/10"},"3":{"zh":"到后场 6/10","en":"To rear court 6/10"},"4":{"zh":"比赛中主动","en":"Proactive in matches"}}},{"code":"N3-01","zh":"搓球","en":"Spin net","group":null,"grades":{"1":{"zh":"认识","en":"Aware"},"2":{"zh":"5/10","en":"5/10"},"3":{"zh":"贴网 6/10","en":"Tight to net 6/10"},"4":{"zh":"比赛中","en":"In matches"}}},{"code":"T3-01","zh":"拉吊四角","en":"Clear-drop to 4 corners","group":null,"grades":{"1":{"zh":"知道","en":"Knows"},"2":{"zh":"配合练习","en":"Cooperative drill"},"3":{"zh":"对练","en":"In drills"},"4":{"zh":"比赛中调动","en":"Moves opponent in matches"}}},{"code":"P3-01","zh":"六点步法计时 6-","en":"6- point footwork test","group":null,"grades":{"1":{"zh":"<45s","en":"<45s"},"2":{"zh":"<38s","en":"<38s"},"3":{"zh":"<32s","en":"<32s"},"4":{"zh":"<28s","en":"<28s"}}}]},"L4":{"goal":{"zh":"四方球稳定、反手可用、能打攻防转换。","en":"Consistent 4-corner game, usable backhand, attack-defence transitions."},"quest":null,"skills":[{"code":"F4-01","zh":"四方步法 4-","en":"4- corner footwork","group":null,"grades":{"1":{"zh":"知道","en":"Knows"},"2":{"zh":"无球连贯","en":"Fluent in shadow"},"3":{"zh":"多球 30 球","en":"Multi-feed 30 shuttles"},"4":{"zh":"比赛中到位","en":"In position in matches"}}},{"code":"R4-01","zh":"反手高远球 / 反手吊球","en":"Backhand clear / drop","group":null,"grades":{"1":{"zh":"能击中","en":"Makes contact"},"2":{"zh":"过中线 5/10","en":"Past mid-court 5/10"},"3":{"zh":"到后场 6/10","en":"To rear court 6/10"},"4":{"zh":"被动中使用","en":"Used under pressure"}}},{"code":"R4-02","zh":"劈吊","en":"Slice drop","group":null,"grades":{"1":{"zh":"认识","en":"Aware"},"2":{"zh":"5/10","en":"5/10"},"3":{"zh":"7/10","en":"7/10"},"4":{"zh":"有隐蔽","en":"Disguised"}}},{"code":"M4-01","zh":"接杀挡网 / 抽挡","en":"Smash defence: block & drive","group":null,"grades":{"1":{"zh":"碰到","en":"Touches it"},"2":{"zh":"5/10","en":"5/10"},"3":{"zh":"7/10","en":"7/10"},"4":{"zh":"化解进攻","en":"Neutralises"}}},{"code":"N4-01","zh":"推后场 / 勾对角","en":"Push / cross-net","group":null,"grades":{"1":{"zh":"认识","en":"Aware"},"2":{"zh":"5/10","en":"5/10"},"3":{"zh":"7/10","en":"7/10"},"4":{"zh":"比赛中","en":"In matches"}}},{"code":"S4-01","zh":"接发球抢攻","en":"Attacking return of serve","group":null,"grades":{"1":{"zh":"能回","en":"Returns it"},"2":{"zh":"有线路 5/10","en":"With placement 5/10"},"3":{"zh":"7/10","en":"7/10"},"4":{"zh":"抢攻","en":"Attacks"}}},{"code":"T4-01","zh":"攻防转换","en":"Attack-defence transition","group":null,"grades":{"1":{"zh":"知道","en":"Knows"},"2":{"zh":"配合练习","en":"Cooperative drill"},"3":{"zh":"对练","en":"In drills"},"4":{"zh":"比赛中","en":"In matches"}}},{"code":"P4-01","zh":"多球耐力","en":"Multi-feed endurance","group":null,"grades":{"1":{"zh":"20 球","en":"20 shuttles"},"2":{"zh":"30 球","en":"30 shuttles"},"3":{"zh":"40 球质量保持","en":"40 shuttles, quality kept"},"4":{"zh":"2 组 × 40","en":"2 sets × 40"}}},{"code":"X4-01","zh":"比赛节奏与心态","en":"Match tempo & mindset","group":null,"grades":{"1":{"zh":"知道","en":"Knows"},"2":{"zh":"有意识","en":"Aware"},"3":{"zh":"能调整","en":"Can adjust"},"4":{"zh":"逆境稳定","en":"Resilient"}}}]},"L5":{"goal":{"zh":"有得分手段和比赛计划，参加地区业余比赛。","en":"Point-winning weapons and game plans; local amateur competition."},"quest":null,"skills":[{"code":"R5-01","zh":"杀直线 / 对角 + 点杀","en":"Straight / cross / stick smash","group":null,"grades":{"2":{"zh":"线路 5/10","en":"Placement 5/10"},"3":{"zh":"7/10","en":"7/10"},"4":{"zh":"战术选择","en":"Tactical"}}},{"code":"R5-02","zh":"滑板吊 / 拦截吊","en":"Reverse slice / intercept drop","group":null,"grades":{"2":{"zh":"5/10","en":"5/10"},"3":{"zh":"7/10","en":"7/10"},"4":{"zh":"有隐蔽","en":"Disguised"}}},{"code":"M5-01","zh":"接杀反抽 / 挑底线","en":"Counter / deep lift","group":null,"grades":{"2":{"zh":"5/10","en":"5/10"},"3":{"zh":"7/10","en":"7/10"},"4":{"zh":"防守转攻","en":"Defence to attack"}}},{"code":"N5-01","zh":"网前扑球","en":"Net kill","group":null,"grades":{"2":{"zh":"5/10","en":"5/10"},"3":{"zh":"7/10","en":"7/10"},"4":{"zh":"抓机会","en":"Takes chances"}}},{"code":"S5-01","zh":"平高球 / 平快发球","en":"Flick / drive serve","group":null,"grades":{"2":{"zh":"5/10","en":"5/10"},"3":{"zh":"隐蔽 6/10","en":"Disguised 6/10"},"4":{"zh":"战术混用","en":"Mixes tactically"}}},{"code":"F5-01","zh":"起跳 / 突击步","en":"Jump & attacking footwork","group":null,"grades":{"2":{"zh":"落地平衡","en":"Balanced landing"},"3":{"zh":"连贯","en":"Fluent"},"4":{"zh":"抢点","en":"Takes early"}}},{"code":"T5-01","zh":"比赛计划与调整","en":"Game plan & in-match adjustment","group":null,"grades":{"2":{"zh":"能制定","en":"Can make one"},"3":{"zh":"能执行","en":"Can execute"},"4":{"zh":"局间调整","en":"Adjusts between games"}}},{"code":"P5-01","zh":"专项体能（间歇、核心、力量）","en":"Interval, core, strength","group":null,"grades":{"2":{"zh":"有计划","en":"Has a plan"},"3":{"zh":"按计划 8 周","en":"Follows plan for 8 weeks"},"4":{"zh":"测试提高","en":"Test scores improve"}}}]},"L6":{"goal":null,"quest":null,"skills":[{"code":"R6-01","zh":"全场进攻组合","en":"Full attacking sequences","group":null,"grades":{"3":{"zh":"多球 8/10","en":"Multi-feed 8/10"},"4":{"zh":"比赛主导","en":"Dictates matches"}}},{"code":"R6-02","zh":"假动作与节奏变化","en":"Deception & tempo change","group":null,"grades":{"3":{"zh":"6/10 有效","en":"6/10 effective"},"4":{"zh":"比赛中造成误判","en":"Wrong-foots opponents in matches"}}},{"code":"M6-01","zh":"全场防守","en":"Full-court defence","group":null,"grades":{"3":{"zh":"8/10","en":"8/10"},"4":{"zh":"被动转主动","en":"Turns defence into attack"}}},{"code":"T6-01","zh":"针对性战术与视频复盘","en":"Opponent-specific tactics & video review","group":null,"grades":{"3":{"zh":"能写计划","en":"Writes a plan"},"4":{"zh":"执行 + 复盘","en":"Executes + reviews"}}},{"code":"P6-01","zh":"周期化训练","en":"Periodisation","group":null,"grades":{"3":{"zh":"按计划","en":"Follows plan"},"4":{"zh":"测试持续提高","en":"Test scores keep improving"}}},{"code":"X6-01","zh":"赛事管理（赛程、恢复、伤病预防）","en":"Event management","group":null,"grades":{"3":{"zh":"有记录","en":"Keeps a log"},"4":{"zh":"习惯化","en":"Habitual"}}}]}}}},"doubles":{"kids":{"notes":[{"zh":"L1–L3 以\"合作得分\"游戏为主，如两人合作连续击球计数。","en":"L1–L3 focus on cooperative games, e.g. partner rally counts."},{"zh":"每次课**轮换搭档**，培养与不同人配合和社交能力。","en":"**Rotate partners** every session to build adaptability and social skills."},{"zh":"L4 之前前后场都要练，不固定分工。","en":"No fixed front/rear roles before L4."},{"zh":"强调礼貌与鼓励：失误后击掌、说\"没关系 / Nice try\"。","en":"Emphasise respect: high-five and say \"没关系 / Nice try\" after errors."},{"zh":"L1–L3 不做混双分工训练。","en":"No mixed-doubles role training at L1–L3."}],"levels":{"L1":{"goal":{"zh":"喜欢和同伴一起打球，学会轮流和沟通。","en":"Enjoy playing with a partner; learn to take turns and communicate."},"quest":{"zh":"与同伴合作连续击球 10 拍；游戏中每球都喊口令。","en":"10-shot cooperative rally with a partner; call every shuttle in a game."},"skills":[{"code":"DC1-01","zh":"喊\"我的 / 你的","en":"\" Calling \"Mine / Yours\"","group":null,"grades":{"1":{"zh":"提示后喊","en":"On cue"},"2":{"zh":"偶尔主动","en":"Sometimes"},"3":{"zh":"每球都喊","en":"Every shuttle"},"4":{"zh":"游戏中自然","en":"Natural in games"}}},{"code":"DC1-02","zh":"两人轮流击球","en":"Taking turns","group":null,"grades":{"1":{"zh":"知道规则","en":"Knows idea"},"2":{"zh":"提示下轮流","en":"With cue"},"3":{"zh":"连续 5 轮不乱 5","en":"5 turns clean"},"4":{"zh":"游戏中自然","en":"Natural"}}},{"code":"DD1-01","zh":"两人合作连续击球","en":"Partner cooperative rally","group":null,"grades":{"1":{"zh":"3 拍","en":"3 shots"},"2":{"zh":"5 拍","en":"5 shots"},"3":{"zh":"10 拍","en":"10 shots"},"4":{"zh":"15 拍","en":"15 shots"}}},{"code":"DX1-01","zh":"合作礼仪","en":"Partner etiquette","group":null,"grades":{"1":{"zh":"知道击掌鼓励","en":"Knows high-five"},"2":{"zh":"提示后做","en":"On cue"},"3":{"zh":"主动做","en":"Unprompted"},"4":{"zh":"帮助新同伴","en":"Helps new partners"}}}]},"L2":{"goal":{"zh":"知道双打规则与场地，会基本站位。","en":"Know doubles rules and court; basic positioning."},"quest":{"zh":"打一局 7 分双打，发球站位全对；网前发球 6/10。","en":"Play a 7-point doubles game with correct serving positions; low serve 6/10."},"skills":[{"code":"DX2-01","zh":"双打场地线（发球区短而宽）","en":"Doubles lines (short & wide service court)","group":null,"grades":{"1":{"zh":"认识","en":"Knows"},"2":{"zh":"能指出","en":"Can point"},"3":{"zh":"判断准确","en":"Accurate"},"4":{"zh":"自己裁判","en":"Self-umpire"}}},{"code":"DS2-01","zh":"正手 / 反手网前发球","en":"Low serve (forehand or backhand)","group":null,"grades":{"1":{"zh":"过网","en":"Over net"},"2":{"zh":"落区 5/10","en":"In zone 5/10"},"3":{"zh":"低且落区 6/10","en":"Low & in zone 6/10"},"4":{"zh":"比赛中首选","en":"Default"}}},{"code":"DP2-01","zh":"发球方站位（发球者前、搭档后）","en":"Serving formation","group":null,"grades":{"1":{"zh":"知道","en":"Knows"},"2":{"zh":"提示后站对","en":"On cue"},"3":{"zh":"每次站对","en":"Always"},"4":{"zh":"自然","en":"Natural"}}},{"code":"DP2-02","zh":"接发方站位","en":"Receiving formation","group":null,"grades":{"1":{"zh":"知道","en":"Knows"},"2":{"zh":"提示后站对","en":"Positions correctly on cue"},"3":{"zh":"每次站对","en":"Positions correctly every time"},"4":{"zh":"自然","en":"Natural"}}},{"code":"DD2-01","zh":"半场平抽入门","en":"Intro mid-court drive","group":null,"grades":{"1":{"zh":"能击中","en":"Contact"},"2":{"zh":"平过网 5/10","en":"Flat over net 5/10"},"3":{"zh":"连续 6 拍 6-","en":"6- shot rally"},"4":{"zh":"游戏中使用","en":"In games"}}},{"code":"DC2-01","zh":"中路球分工（正手位接）","en":"Middle shuttle: forehand side takes it","group":null,"grades":{"1":{"zh":"知道","en":"Knows"},"2":{"zh":"提示后","en":"On cue"},"3":{"zh":"7/10","en":"7/10"},"4":{"zh":"自然","en":"Natural"}}}]},"L3":{"goal":{"zh":"会\"进攻前后、防守左右\"，会双打计分与轮换。","en":"\"Front-back to attack, side-by-side to defend\"; doubles scoring and service order."},"quest":{"zh":"打一场 11 分双打，独立计分且无发球顺序错误。","en":"11-point doubles match, self-scored with no service-order errors."},"skills":[{"code":"DP3-01","zh":"进攻前后站位","en":"Front-back attacking formation","group":null,"grades":{"1":{"zh":"知道","en":"Knows"},"2":{"zh":"喂球中站对","en":"With feed"},"3":{"zh":"对练中 7/10","en":"In drills 7/10"},"4":{"zh":"比赛中自然","en":"Natural in matches"}}},{"code":"DP3-02","zh":"防守左右站位","en":"Side-by-side defence","group":null,"grades":{"1":{"zh":"知道","en":"Knows"},"2":{"zh":"喂球中站对","en":"Positions correctly with feed"},"3":{"zh":"对练中 7/10","en":"In drills 7/10"},"4":{"zh":"比赛中自然","en":"Natural in matches"}}},{"code":"DS3-01","zh":"反手网前发球","en":"Backhand low serve","group":null,"grades":{"1":{"zh":"过网","en":"Over net"},"2":{"zh":"落区 5/10","en":"In zone 5/10"},"3":{"zh":"低且落区 7/10","en":"Low & in zone 7/10"},"4":{"zh":"比赛中稳定","en":"Consistent in matches"}}},{"code":"DR3-01","zh":"接发球推后场 / 放网","en":"Return: push or net","group":null,"grades":{"1":{"zh":"能回","en":"Returns it"},"2":{"zh":"不起高 5/10","en":"Not lifted 5/10"},"3":{"zh":"7/10","en":"7/10"},"4":{"zh":"比赛中使用","en":"Used in matches"}}},{"code":"DD3-01","zh":"平抽挡","en":"Drive & block","group":null,"grades":{"1":{"zh":"能击中","en":"Makes contact"},"2":{"zh":"5/10","en":"5/10"},"3":{"zh":"连续 10 拍","en":"Rally of 10 shots"},"4":{"zh":"比赛中使用","en":"Used in matches"}}},{"code":"DF3-01","zh":"接杀挡网 / 挑高","en":"Block / lift vs. smash","group":null,"grades":{"1":{"zh":"能碰到","en":"Touches it"},"2":{"zh":"5/10","en":"5/10"},"3":{"zh":"6/10","en":"6/10"},"4":{"zh":"比赛中化解","en":"Neutralises in matches"}}},{"code":"DX3-01","zh":"双打计分与发球轮换","en":"Doubles scoring & service order","group":null,"grades":{"1":{"zh":"知道","en":"Knows"},"2":{"zh":"能说清","en":"Can explain"},"3":{"zh":"无错误","en":"Error-free"},"4":{"zh":"能当裁判","en":"Can umpire"}}},{"code":"DC3-01","zh":"失误后互相鼓励","en":"Encourage after errors","group":null,"grades":{"1":{"zh":"提示后","en":"On cue"},"2":{"zh":"偶尔主动","en":"Sometimes unprompted"},"3":{"zh":"每次","en":"Every time"},"4":{"zh":"带动组合","en":"Lifts the pair"}}}]},"L4":{"goal":{"zh":"攻守转换和轮转，开始尝试主动进攻。","en":"Attack-defence transitions and rotation; start attacking deliberately."},"quest":null,"skills":[{"code":"DP4-01","zh":"攻转守 / 守转攻","en":"Attack ↔ defence transition","group":null,"grades":{"1":{"zh":"知道","en":"Knows"},"2":{"zh":"喂球中做","en":"Does it with feed"},"3":{"zh":"对练中 7/10","en":"In drills 7/10"},"4":{"zh":"比赛中自然","en":"Natural in matches"}}},{"code":"DP4-02","zh":"后场进攻者杀后跟进","en":"Smasher follows in","group":null,"grades":{"1":{"zh":"知道","en":"Knows"},"2":{"zh":"5/10","en":"5/10"},"3":{"zh":"7/10","en":"7/10"},"4":{"zh":"比赛中使用","en":"Used in matches"}}},{"code":"DA4-01","zh":"后场连续杀球（3 拍）","en":"Repeated smash (3 in a row)","group":null,"grades":{"1":{"zh":"能杀","en":"Can smash"},"2":{"zh":"下压 5/10","en":"Downward 5/10"},"3":{"zh":"7/10","en":"7/10"},"4":{"zh":"比赛中压制","en":"Dominates in matches"}}},{"code":"DN4-01","zh":"网前封网","en":"Net interception","group":null,"grades":{"1":{"zh":"能拦","en":"Can intercept"},"2":{"zh":"下压 5/10","en":"Downward 5/10"},"3":{"zh":"7/10","en":"7/10"},"4":{"zh":"比赛中抓机会","en":"Takes chances in matches"}}},{"code":"DS4-01","zh":"平高球发球","en":"Flick serve","group":null,"grades":{"1":{"zh":"能做","en":"Can do"},"2":{"zh":"过头 5/10","en":"Over receiver 5/10"},"3":{"zh":"6/10","en":"6/10"},"4":{"zh":"战术混用","en":"Mixes tactically"}}},{"code":"DR4-01","zh":"接发抢攻（扑 / 推中路）","en":"Attacking return (kill / push to middle)","group":null,"grades":{"1":{"zh":"能做","en":"Can do"},"2":{"zh":"5/10","en":"5/10"},"3":{"zh":"7/10","en":"7/10"},"4":{"zh":"比赛中首选","en":"Default choice in matches"}}},{"code":"DT4-01","zh":"打中路","en":"Hit the middle","group":null,"grades":{"1":{"zh":"知道","en":"Knows"},"2":{"zh":"对练中","en":"In drills"},"3":{"zh":"7/10","en":"7/10"},"4":{"zh":"比赛中有效","en":"Effective in matches"}}},{"code":"DC4-01","zh":"场上口令与手势","en":"Calls & hand signals","group":null,"grades":{"1":{"zh":"知道","en":"Knows"},"2":{"zh":"提示后","en":"On cue"},"3":{"zh":"每分都有","en":"Every point"},"4":{"zh":"自然","en":"Natural"}}}]},"L5":{"goal":{"zh":"前后场有分工，有发接发套路，参加地区比赛。","en":"Clear front/rear roles, serve-return plays; local competition."},"quest":null,"skills":[{"code":"DA5-01","zh":"点杀、劈杀、杀直线/对角","en":"Stick, slice, straight & cross smash","group":null,"grades":{"2":{"zh":"5/10","en":"5/10"},"3":{"zh":"7/10","en":"7/10"},"4":{"zh":"按战术选择","en":"Tactical"}}},{"code":"DN5-01","zh":"前场压网与快速推扑","en":"Net pressure & fast push/kill","group":null,"grades":{"2":{"zh":"5/10","en":"5/10"},"3":{"zh":"7/10","en":"7/10"},"4":{"zh":"主导网前","en":"Dominates the net"}}},{"code":"DF5-01","zh":"防守反抽 / 挑底线","en":"Counter-drive / deep lift","group":null,"grades":{"2":{"zh":"5/10","en":"5/10"},"3":{"zh":"7/10","en":"7/10"},"4":{"zh":"防守转攻","en":"Defence to attack"}}},{"code":"DT5-01","zh":"发接发前三拍套路","en":"First-3-shot plays","group":null,"grades":{"2":{"zh":"知道 2 套","en":"Knows 2"},"3":{"zh":"能执行","en":"Executes"},"4":{"zh":"比赛中得分","en":"Wins points"}}},{"code":"DT5-02","zh":"针对弱者 / 弱点","en":"Target the weaker player / weakness","group":null,"grades":{"2":{"zh":"赛后说出","en":"Names it after match"},"3":{"zh":"局间调整","en":"Adjusts between games"},"4":{"zh":"比赛中执行","en":"Executes in matches"}}},{"code":"DX5-01","zh":"组合心理：关键分沟通","en":"Pair mindset on key points","group":null,"grades":{"2":{"zh":"有意识","en":"Aware"},"3":{"zh":"有固定沟通","en":"Routine"},"4":{"zh":"关键分稳定","en":"Steady on key points"}}}]},"L6":{"goal":null,"quest":null,"skills":[{"code":"DP6-01","zh":"高速轮转","en":"High-speed rotation","group":null,"grades":{"3":{"zh":"多球 8/10 不乱","en":"8/10 in multi-feed, no clashes"},"4":{"zh":"比赛中无空档","en":"No gaps in matches"}}},{"code":"DA6-01","zh":"连续进攻组合（杀—封—扑）","en":"Attack chain (smash–intercept–kill)","group":null,"grades":{"3":{"zh":"8/10","en":"8/10"},"4":{"zh":"主导比赛","en":"Dictates matches"}}},{"code":"DF6-01","zh":"高质量防守","en":"Elite defence","group":null,"grades":{"3":{"zh":"接连续杀 8/10","en":"Repeated smash defence 8/10"},"4":{"zh":"防守中得分","en":"Wins points from defence"}}},{"code":"DT6-01","zh":"赛前计划与视频复盘","en":"Game plan & video review","group":null,"grades":{"3":{"zh":"能写","en":"Can write it"},"4":{"zh":"执行 + 复盘","en":"Executes + reviews"}}},{"code":"DX6-01","zh":"组合目标与自我管理","en":"Pair goals & self-management","group":null,"grades":{"3":{"zh":"有记录","en":"Keeps a log"},"4":{"zh":"习惯化","en":"Habitual"}}}]}}},"adults":{"notes":[{"zh":"成人业余球员大多以双打为主，可作为主线框架。","en":"Most adult amateurs mainly play doubles; this can be their main track."},{"zh":"常见问题：两人站一起、乱起高球、中路让球 —— **先纠站位再练技术**。","en":"Common issues: standing together, needless lifts, leaving middle shuttles — **fix positioning before technique**."},{"zh":"平抽、封网、急停较多，注意**肩、肘、膝、跟腱**。","en":"Lots of drives, interceptions and sudden stops — watch **shoulder, elbow, knee, Achilles**."},{"zh":"L5 起可选**混双模块**。","en":"Optional **mixed doubles module** from L5."},{"zh":"40 岁以上：减少连续杀球和高强度多球组数。","en":"40+: reduce repeated-smash and high-intensity multi-feed sets."}],"levels":{"L1":{"goal":{"zh":"认识双打场地与规则，能在双打中参与对打。","en":"Know doubles court and rules; take part in doubles rallies."},"quest":null,"skills":[{"code":"DX1-01","zh":"双打场地与发球区","en":"Doubles court & service courts","group":null,"grades":{"1":{"zh":"知道","en":"Knows"},"2":{"zh":"能指出","en":"Can point out"},"3":{"zh":"准确","en":"Accurate"},"4":{"zh":"能当裁判","en":"Can umpire"}}},{"code":"DS1-01","zh":"网前发球（正/反手）","en":"Low serve (forehand or backhand)","group":null,"grades":{"1":{"zh":"过网","en":"Over net"},"2":{"zh":"落区 5/10","en":"In zone 5/10"},"3":{"zh":"6/10","en":"6/10"},"4":{"zh":"比赛中首选","en":"Default choice in matches"}}},{"code":"DP1-01","zh":"发球/接发站位","en":"Serving & receiving positions","group":null,"grades":{"1":{"zh":"知道","en":"Knows"},"2":{"zh":"提示后","en":"On cue"},"3":{"zh":"每次","en":"Every time"},"4":{"zh":"自然","en":"Natural"}}},{"code":"DC1-01","zh":"口令\"我的 / 你的","en":"\" Calling \"Mine / Yours\"","group":null,"grades":{"1":{"zh":"提示后","en":"On cue"},"2":{"zh":"偶尔","en":"Sometimes"},"3":{"zh":"每球","en":"Every shuttle"},"4":{"zh":"自然","en":"Natural"}}}]},"L2":{"goal":{"zh":"改掉\"两人站一起\"，学会基本前后/左右站位。","en":"Stop \"standing together\"; learn front-back and side-by-side."},"quest":null,"skills":[{"code":"DP2-01","zh":"进攻前后 / 防守左右","en":"Front-back attack / side-by-side defence","group":null,"grades":{"1":{"zh":"知道","en":"Knows"},"2":{"zh":"喂球中站对","en":"Positions correctly with feed"},"3":{"zh":"对练中 7/10","en":"In drills 7/10"},"4":{"zh":"比赛中自然","en":"Natural in matches"}}},{"code":"DS2-01","zh":"反手网前发球","en":"Backhand low serve","group":null,"grades":{"1":{"zh":"过网","en":"Over net"},"2":{"zh":"落区 5/10","en":"In zone 5/10"},"3":{"zh":"低且落区 7/10","en":"Low & in zone 7/10"},"4":{"zh":"比赛中稳定","en":"Consistent in matches"}}},{"code":"DR2-01","zh":"接发不起高","en":"Return without lifting","group":null,"grades":{"1":{"zh":"能回","en":"Returns it"},"2":{"zh":"不起高 5/10","en":"Not lifted 5/10"},"3":{"zh":"7/10","en":"7/10"},"4":{"zh":"比赛中","en":"In matches"}}},{"code":"DD2-01","zh":"平抽挡","en":"Drive & block","group":null,"grades":{"1":{"zh":"能击中","en":"Makes contact"},"2":{"zh":"5/10","en":"5/10"},"3":{"zh":"连续 10 拍","en":"Rally of 10 shots"},"4":{"zh":"比赛中","en":"In matches"}}},{"code":"DC2-01","zh":"中路球分工","en":"Middle-shuttle responsibility","group":null,"grades":{"1":{"zh":"知道","en":"Knows"},"2":{"zh":"提示后","en":"On cue"},"3":{"zh":"7/10","en":"7/10"},"4":{"zh":"自然","en":"Natural"}}},{"code":"DX2-01","zh":"双打计分与发球轮换","en":"Scoring & service order","group":null,"grades":{"1":{"zh":"知道","en":"Knows"},"2":{"zh":"能说清","en":"Can explain"},"3":{"zh":"无错误","en":"Error-free"},"4":{"zh":"能当裁判","en":"Can umpire"}}}]},"L3":{"goal":{"zh":"主动下压意识，能接杀，能打完整双打比赛。","en":"\"Keep it down\" mindset, defend smashes, play full doubles matches."},"quest":null,"skills":[{"code":"DA3-01","zh":"后场杀球与跟进","en":"Smash & follow-in","group":null,"grades":{"1":{"zh":"能杀","en":"Can smash"},"2":{"zh":"下压 5/10","en":"Downward 5/10"},"3":{"zh":"7/10","en":"7/10"},"4":{"zh":"比赛中","en":"In matches"}}},{"code":"DN3-01","zh":"网前封网","en":"Net interception","group":null,"grades":{"1":{"zh":"能拦","en":"Can intercept"},"2":{"zh":"下压 5/10","en":"Downward 5/10"},"3":{"zh":"7/10","en":"7/10"},"4":{"zh":"抓机会","en":"Takes chances"}}},{"code":"DF3-01","zh":"接杀挡网 / 挑底线","en":"Block / deep lift","group":null,"grades":{"1":{"zh":"碰到","en":"Touches it"},"2":{"zh":"5/10","en":"5/10"},"3":{"zh":"7/10","en":"7/10"},"4":{"zh":"化解进攻","en":"Neutralises attacks"}}},{"code":"DS3-01","zh":"平高球发球","en":"Flick serve","group":null,"grades":{"1":{"zh":"能做","en":"Can do"},"2":{"zh":"过头 5/10","en":"Over receiver 5/10"},"3":{"zh":"6/10","en":"6/10"},"4":{"zh":"混用","en":"Mixes"}}},{"code":"DR3-01","zh":"接发推中路 / 底线两角","en":"Return to middle / rear corners","group":null,"grades":{"1":{"zh":"能做","en":"Can do"},"2":{"zh":"5/10","en":"5/10"},"3":{"zh":"7/10","en":"7/10"},"4":{"zh":"比赛中","en":"In matches"}}},{"code":"DP3-01","zh":"攻守转换","en":"Attack ↔ defence transition","group":null,"grades":{"1":{"zh":"知道","en":"Knows"},"2":{"zh":"喂球中","en":"With feed"},"3":{"zh":"对练中","en":"In drills"},"4":{"zh":"比赛中","en":"In matches"}}}]},"L4":{"goal":{"zh":"流畅轮转，主动抢攻，有基本战术。","en":"Smooth rotation, take the attack, basic tactics."},"quest":null,"skills":[{"code":"DP4-01","zh":"轮转（前后 ↔ 左右）","en":"Rotation","group":null,"grades":{"1":{"zh":"知道","en":"Knows"},"2":{"zh":"多球中","en":"In multi-feed"},"3":{"zh":"对练中 7/10","en":"In drills 7/10"},"4":{"zh":"比赛中无空档","en":"No gaps in matches"}}},{"code":"DA4-01","zh":"连续杀球（3–5 拍）","en":"Repeated smash (3–5)","group":null,"grades":{"1":{"zh":"能杀","en":"Can smash"},"2":{"zh":"5/10","en":"5/10"},"3":{"zh":"7/10","en":"7/10"},"4":{"zh":"比赛中压制","en":"Dominates in matches"}}},{"code":"DR4-01","zh":"接发抢攻（扑 / 快推）","en":"Attacking return","group":null,"grades":{"1":{"zh":"能做","en":"Can do"},"2":{"zh":"5/10","en":"5/10"},"3":{"zh":"7/10","en":"7/10"},"4":{"zh":"首选","en":"Default choice"}}},{"code":"DD4-01","zh":"平抽快挡对抗","en":"Fast drive battle","group":null,"grades":{"1":{"zh":"6 拍","en":"6 shots"},"2":{"zh":"10 拍","en":"10 shots"},"3":{"zh":"15 拍","en":"15 shots"},"4":{"zh":"比赛中赢平抽","en":"Wins drive battles in matches"}}},{"code":"DF4-01","zh":"防守反抽","en":"Counter-drive from defence","group":null,"grades":{"1":{"zh":"碰到","en":"Touches it"},"2":{"zh":"5/10","en":"5/10"},"3":{"zh":"7/10","en":"7/10"},"4":{"zh":"防守转攻","en":"Defence to attack"}}},{"code":"DT4-01","zh":"打中路 / 打追身","en":"Middle & body shots","group":null,"grades":{"1":{"zh":"知道","en":"Knows"},"2":{"zh":"对练中","en":"In drills"},"3":{"zh":"7/10","en":"7/10"},"4":{"zh":"有效","en":"Effective"}}},{"code":"DC4-01","zh":"口令与手势（发球暗号）","en":"Calls & serve signals","group":null,"grades":{"1":{"zh":"知道","en":"Knows"},"2":{"zh":"提示后","en":"On cue"},"3":{"zh":"每分","en":"Every point"},"4":{"zh":"自然","en":"Natural"}}}]},"L5":{"goal":null,"quest":null,"skills":[{"code":"DA5-01","zh":"点杀 / 劈杀 / 线路变化","en":"Stick, slice, placement","group":null,"grades":{"2":{"zh":"5/10","en":"5/10"},"3":{"zh":"7/10","en":"7/10"},"4":{"zh":"战术选择","en":"Tactical choice"}}},{"code":"DN5-01","zh":"前场压网与快速推扑","en":"Net pressure & fast push/kill","group":null,"grades":{"2":{"zh":"5/10","en":"5/10"},"3":{"zh":"7/10","en":"7/10"},"4":{"zh":"主导网前","en":"Dominates the net"}}},{"code":"DT5-01","zh":"发接发前三拍套路","en":"First-3-shot plays","group":null,"grades":{"2":{"zh":"知道 2 套","en":"Knows 2 plays"},"3":{"zh":"执行","en":"Executes"},"4":{"zh":"得分","en":"Wins points"}}},{"code":"DT5-02","zh":"针对弱者 / 弱点","en":"Target weakness","group":null,"grades":{"2":{"zh":"赛后说出","en":"Names it after match"},"3":{"zh":"局间调整","en":"Adjusts between games"},"4":{"zh":"比赛中执行","en":"Executes in matches"}}},{"code":"DX5-01","zh":"组合沟通与关键分","en":"Pair communication on key points","group":null,"grades":{"2":{"zh":"有意识","en":"Aware"},"3":{"zh":"有程序","en":"Has a routine"},"4":{"zh":"稳定","en":"Consistent"}}},{"code":"DM5-01","zh":"前场球员：封网与网前控制","en":"Front player: net control","group":"mixed","grades":{"2":{"zh":"5/10","en":"5/10"},"3":{"zh":"7/10","en":"7/10"},"4":{"zh":"主导网前","en":"Dominates the net"}}},{"code":"DM5-02","zh":"后场球员：全后场覆盖","en":"Rear player: full rear-court coverage","group":"mixed","grades":{"2":{"zh":"5/10","en":"5/10"},"3":{"zh":"7/10","en":"7/10"},"4":{"zh":"比赛中稳定","en":"Consistent in matches"}}},{"code":"DM5-03","zh":"混双发接发与站位","en":"Mixed serve/return & positions","group":"mixed","grades":{"2":{"zh":"知道","en":"Knows"},"3":{"zh":"每次正确","en":"Correct every time"},"4":{"zh":"自然","en":"Natural"}}},{"code":"DM5-04","zh":"混双防守站位（前场球员侧移）","en":"Mixed defence shape","group":"mixed","grades":{"2":{"zh":"知道","en":"Knows"},"3":{"zh":"对练中","en":"In drills"},"4":{"zh":"比赛中","en":"In matches"}}}]},"L6":{"goal":null,"quest":null,"skills":[{"code":"DP6-01","zh":"高速轮转","en":"High-speed rotation","group":null,"grades":{"3":{"zh":"8/10","en":"8/10"},"4":{"zh":"无空档","en":"No gaps"}}},{"code":"DA6-01","zh":"连续进攻组合","en":"Attack chain","group":null,"grades":{"3":{"zh":"8/10","en":"8/10"},"4":{"zh":"主导比赛","en":"Dictates matches"}}},{"code":"DF6-01","zh":"高质量防守","en":"Elite defence","group":null,"grades":{"3":{"zh":"8/10","en":"8/10"},"4":{"zh":"防守中得分","en":"Wins points from defence"}}},{"code":"DT6-01","zh":"针对性战术与视频复盘","en":"Opponent-specific plans & video review","group":null,"grades":{"3":{"zh":"能写","en":"Can write it"},"4":{"zh":"执行 + 复盘","en":"Executes + reviews"}}},{"code":"DX6-01","zh":"赛事与组合管理","en":"Event & pair management","group":null,"grades":{"3":{"zh":"有记录","en":"Keeps a log"},"4":{"zh":"习惯化","en":"Habitual"}}}]}}}}};
+
+/* ---------- Static framework metadata ---------- */
+const LEVELS = [
+ {n:1, zh:'启蒙级', en:'Foundation', e:'🐣', ks:{zh:'小雏鸟',en:'Chick'}, kd:{zh:'双雏鸟',en:'Twin Chicks'}, age:'6–8',
+  ap:{zh:'零基础 / 刚接触',en:'Absolute beginner'}, dp:{zh:'两人合作游戏',en:'Partner cooperation games'}, eq:{zh:'能偶尔击中球',en:'Can occasionally hit the shuttle'}, dur:'3–6', entry:null},
+ {n:2, zh:'入门级', en:'Beginner', e:'🐦', ks:{zh:'小飞燕',en:'Swallow'}, kd:{zh:'比翼燕',en:'Paired Swallows'}, age:'7–10',
+  ap:{zh:'会打但无规范动作',en:'Casual player, no formal technique'}, dp:{zh:'知道规则与基本站位',en:'Knows rules & basic positions'}, eq:{zh:'能简单对打',en:'Can rally casually'}, dur:'3–6', entry:1},
+ {n:3, zh:'基础级', en:'Improver', e:'🦅', ks:{zh:'雏鹰',en:'Young Eagle'}, kd:{zh:'双鹰',en:'Eagle Pair'}, age:'8–12',
+  ap:{zh:'动作初步规范',en:'Basic correct technique'}, dp:{zh:'能用前后 / 左右站位',en:'Uses front-back & side-by-side'}, eq:{zh:'能打满底线、懂规则',en:'Clears to baseline, knows rules'}, dur:'3–6', entry:2},
+ {n:4, zh:'进阶级', en:'Intermediate', e:'🦅', ks:{zh:'雄鹰',en:'Eagle'}, kd:{zh:'鹰组合',en:'Eagle Team'}, age:'9–13',
+  ap:{zh:'社区 / 俱乐部中等',en:'Club intermediate'}, dp:{zh:'攻守转换与轮转',en:'Attack-defence rotation'}, eq:{zh:'能稳定四方球、有简单战术',en:'Consistent 4-corner game, basic tactics'}, dur:'6–12', entry:3},
+ {n:5, zh:'提高级', en:'Advanced', e:'🔥', ks:{zh:'猎鹰',en:'Falcon'}, kd:{zh:'猎鹰组合',en:'Falcon Team'}, age:'10–15',
+  ap:{zh:'俱乐部高水平',en:'Strong club player'}, dp:{zh:'有固定战术与分工',en:'Set plays & clear roles'}, eq:{zh:'能参加地区业余比赛',en:'Competes in local amateur events'}, dur:'6–12', entry:4},
+ {n:6, zh:'竞技级', en:'Competitive', e:'🏆', ks:{zh:'金翅鹏',en:'Golden Roc'}, kd:{zh:'双翼金鹏',en:'Golden Roc Pair'}, age:'12+',
+  ap:{zh:'业余高手 / 青少年竞技',en:'Top amateur / junior competitive'}, dp:{zh:'竞技级组合',en:'Competitive pair'}, eq:{zh:'能参加省市级比赛',en:'Ready for regional / provincial events'}, dur:'6–12', entry:5},
+];
+const DOMAINS = {
+ G:{zh:'握拍与准备',en:'Grip & Ready',c:0}, F:{zh:'步法',en:'Footwork',c:1}, S:{zh:'发球与接发',en:'Serve & Return',c:2},
+ R:{zh:'后场技术',en:'Rear Court',c:3}, M:{zh:'中场技术',en:'Mid Court',c:4}, N:{zh:'网前技术',en:'Net',c:5},
+ T:{zh:'战术',en:'Tactics',c:2}, P:{zh:'体能',en:'Physical',c:0}, X:{zh:'心理与规则',en:'Mental & Rules',c:4},
+ DS:{zh:'发球',en:'Serve',c:2}, DR:{zh:'接发球',en:'Return of Serve',c:5}, DD:{zh:'平抽挡',en:'Drive & Flat Game',c:4},
+ DA:{zh:'后场进攻',en:'Rear Attack',c:3}, DN:{zh:'前场封网',en:'Front Court',c:5}, DF:{zh:'防守',en:'Defence',c:1},
+ DP:{zh:'站位与轮转',en:'Formation & Rotation',c:0}, DC:{zh:'沟通与配合',en:'Communication',c:1},
+ DT:{zh:'战术',en:'Tactics',c:2}, DX:{zh:'规则与心理',en:'Rules & Mental',c:4}, DM:{zh:'混双',en:'Mixed Doubles',c:2},
+};
+const GRADES = [
+ {n:1, zh:'认识', en:'Aware', s:{zh:'能在教练示范 / 喂球下做出大致动作',en:'Can perform the rough movement with demo or hand-feed'},
+  d:{zh:'教练喂球或讲解下能做出动作、站到位',en:'Can do it with feed or explanation'}},
+ {n:2, zh:'会做', en:'Developing', s:{zh:'配合练习中能完成，成功率约 50%',en:'Can execute in cooperative drills, about 50% success'},
+  d:{zh:'2 对 1 或 2 对 2 配合练习中约 50% 成功',en:'About 50% in cooperative 2v1 / 2v2 drills'}},
+ {n:3, zh:'稳定', en:'Consistent', s:{zh:'多球 / 对练中稳定完成，成功率 ≥ 70%，有移动',en:'At least 70% in multi-feed or rally drills, with movement'},
+  d:{zh:'对抗练习中 ≥ 70%，且和搭档配合不乱',en:'At least 70% in competitive drills, without clashing with partner'}},
+ {n:4, zh:'运用', en:'Applied', s:{zh:'比赛或对抗中主动、合理使用',en:'Uses it purposefully under pressure or in matches'},
+  d:{zh:'比赛中主动合理使用，且能与至少 2 位不同搭档配合',en:'Used purposefully in matches, with at least 2 different partners'}},
+];
+const U = {
+ title:{zh:'羽毛球进阶框架',en:'Badminton Pathway'}, sub:{zh:'Badminton Pathway · 草案 v0.1',en:'羽毛球进阶框架 · Draft v0.1'},
+ singles:{zh:'单打',en:'Singles'}, doubles:{zh:'双打',en:'Doubles'}, kids:{zh:'少儿',en:'Kids'}, adults:{zh:'成人',en:'Adults'},
+ tLevels:{zh:'级别',en:'Levels'}, tGuide:{zh:'规则',en:'Guide'}, tAssess:{zh:'评估',en:'Assessment'},
+ goal:{zh:'本级目标',en:'Goal'}, quest:{zh:'闯关挑战',en:'Quest challenge'}, age:{zh:'建议年龄',en:'Suggested age'},
+ years:{zh:'岁',en:'yrs'}, dur:{zh:'建议周期',en:'Typical duration'}, months:{zh:'个月',en:'months'},
+ entry:{zh:'单打准入',en:'Singles entry'}, profile:{zh:'定位',en:'Profile'}, equiv:{zh:'大致水平',en:'Rough equivalent'},
+ skills:{zh:'技能',en:'Skills'}, all:{zh:'全部',en:'All'}, tapHint:{zh:'点按技能查看 4 档达成标准',en:'Tap a skill to see its 4 grades'},
+ mixed:{zh:'混双拓展模块（可选）',en:'Mixed doubles module (optional)'},
+ myProg:{zh:'我的进度',en:'My progress'}, atC:{zh:'项达到 ⭐⭐⭐ 稳定',en:'skills at ⭐⭐⭐ Consistent'},
+ at4:{zh:'项达到 ⭐⭐⭐⭐ 运用（需 ',en:'at ⭐⭐⭐⭐ Applied (need '}, at4b:{zh:' 项）',en:')'},
+ readyY:{zh:'可以申请升级考核',en:'Ready for the level-up test'}, readyN:{zh:'尚未达到升级要求',en:'Not ready to level up yet'},
+ sheetHint:{zh:'点按某一档，标记为你目前达到的水平（只保存在本设备）。',en:'Tap a grade to mark it as your current level (saved on this device only).'},
+ criterion:{zh:'本技能标准',en:'This skill'}, assumed:{zh:'默认已在上一级完成',en:'Assumed from the previous level'},
+ me:{zh:'当前',en:'Current'}, clear:{zh:'清除评级',en:'Clear rating'}, close:{zh:'关闭',en:'Close'}, next:{zh:'下一项',en:'Next skill'},
+ grades:{zh:'技能达成等级',en:'Skill achievement grades'}, rules:{zh:'升级考核规则',en:'Level-up rules'},
+ notes:{zh:'训练须知',en:'Track notes'}, reset:{zh:'清除本版本全部进度',en:'Clear all progress for this track'},
+ resetQ:{zh:'确定清除？此操作无法撤销。',en:'Clear everything? This cannot be undone.'}, yes:{zh:'清除',en:'Clear'}, no:{zh:'取消',en:'Cancel'},
+ flow:{zh:'评估流程',en:'Assessment flow'}, phys:{zh:'身体 / 动作筛查',en:'Physical & movement screen'},
+ stations:{zh:'技术测试站（每站 10 球）',en:'Technical stations (10 shuttles each)'}, place:{zh:'定级参考',en:'Placement guide'},
+ calc:{zh:'定级计算器',en:'Placement calculator'}, score:{zh:'总分',en:'Total'}, suggested:{zh:'建议起始级别',en:'Suggested start level'},
+ test:{zh:'测试',en:'Test'}, crit:{zh:'成功标准',en:'Success criterion'}, band:{zh:'分数',en:'Score'}, lvl:{zh:'级别',en:'Level'},
+};
+const RULES = {
+ singles:[
+  {zh:'本级所有技能达到 ⭐⭐⭐ 稳定。',en:'Every skill in the current level at ⭐⭐⭐ or higher.'},
+  {zh:'至少 3 项（L1–L2 为 2 项）达到 ⭐⭐⭐⭐ 运用。',en:'At least 3 skills (2 for L1–L2) at ⭐⭐⭐⭐.'},
+  {zh:'L3 以上需 2 名教练在比赛观察中确认。',en:'From L3 up, 2 coaches confirm it in match observation.'},
+  {zh:'每 8 周阶段评估，每 3–6 个月升级考核。',en:'Progress check every 8 weeks; level-up test every 3–6 months.'},
+  {zh:'未通过时给出未达标技能清单和下一阶段重点。',en:'If not passed: list unmet skills and the next training focus.'},
+  {zh:'少儿：发放徽章证书，家长可在场观看。',en:'Kids: badge certificate; parents may attend.'}],
+ doubles:[
+  {zh:'本级所有双打技能达到 ⭐⭐⭐ 稳定。',en:'Every doubles skill in the current level at ⭐⭐⭐ or higher.'},
+  {zh:'至少 3 项（L1–L2 为 2 项）达到 ⭐⭐⭐⭐，且与 ≥ 2 位搭档观察到。',en:'At least 3 skills (2 for L1–L2) at ⭐⭐⭐⭐, seen with 2 or more partners.'},
+  {zh:'升到双打 Ln 前，单打需达到 L(n−1)。',en:'Before doubles Ln, singles must be at L(n−1).'},
+  {zh:'L3 以上需 2 名教练在比赛中确认。',en:'From L3 up, 2 coaches confirm it in match play.'},
+  {zh:'按个人升级，搭档不必同时升级。',en:'Players level up individually; partners need not move together.'},
+  {zh:'每 8 周阶段评估，每 3–6 个月升级考核。',en:'Progress check every 8 weeks; level-up test every 3–6 months.'}],
+};
+const FLOW = {
+ singles:[
+  {zh:'信息登记与健康筛查',en:'Intake & health screen'},{zh:'身体素质 / 动作筛查',en:'Physical & movement screen'},
+  {zh:'技术测试站',en:'Technical stations'},{zh:'对打 / 比赛观察（11 分，少儿 7 分）',en:'Rally & match observation (11 pts; kids 7)'},
+  {zh:'综合评分定级',en:'Scoring & placement'},{zh:'反馈：2 个优点 + 2 个提升项 + 8–12 周目标',en:'Feedback: 2 strengths + 2 priorities + 8–12 week goal'}],
+ doubles:[
+  {zh:'沿用单打的信息登记与身体筛查',en:'Reuse singles intake & physical screen'},{zh:'双打技术站',en:'Doubles stations'},
+  {zh:'双打比赛观察（可中途换搭档）',en:'Doubles match observation (swap partner once)'},{zh:'综合评分定级（不超过单打级别 +1）',en:'Scoring & placement (capped at singles level + 1)'},
+  {zh:'反馈与搭档建议',en:'Feedback & partner advice'}],
+};
+const PHYS = {
+ kids:[['K-P1',{zh:'单脚站立',en:'Single-leg balance'}],['K-P2',{zh:'单脚跳',en:'Hop'}],['K-P3',{zh:'侧滑步',en:'Side gallop'}],
+  ['K-P4',{zh:'过肩投掷',en:'Overarm throw'}],['K-P5',{zh:'抛接球',en:'Catch'}],['K-P6',{zh:'十字跳',en:'Cross jumps'}]],
+ adults:[['A-P1',{zh:'肩关节活动度',en:'Shoulder mobility'}],['A-P2',{zh:'深蹲 / 弓步质量',en:'Squat & lunge quality'}],['A-P3',{zh:'坐位体前屈',en:'Sit-and-reach'}],
+  ['A-P4',{zh:'六点步法计时',en:'6-point footwork'}],['A-P5',{zh:'往返跑',en:'Shuttle run'}],['A-P6',{zh:'原地纵跳（可选）',en:'Vertical jump (optional)'}]],
+};
+const STATIONS = {
+ singles:[
+  ['T1',{zh:'握拍检查',en:'Grip check'},{zh:'观察打分 1–4',en:'Observed 1–4'}],
+  ['T2',{zh:'颠球',en:'Shuttle keep-ups'},{zh:'少儿 ≥10 次；成人正反手交替 ≥20 次',en:'Kids ≥10; adults ≥20 alternating'}],
+  ['T3',{zh:'正手高远发球',en:'Forehand high serve'},{zh:'落双打后发球线至底线区域',en:'Between doubles long-service line and baseline'}],
+  ['T4',{zh:'反手网前发球',en:'Backhand low serve'},{zh:'过网 <30cm，落前发球线后 1m 内',en:'Clears net by <30cm, within 1m of short line'}],
+  ['T5',{zh:'正手高远球',en:'Forehand clear'},{zh:'落后场 1/3',en:'Rear third'}],
+  ['T6',{zh:'网前放网',en:'Net shot'},{zh:'不冒高、落前发球线内',en:'Tight, inside short service line'}],
+  ['T7',{zh:'挑后场',en:'Underarm lift'},{zh:'落后场 1/3',en:'Rear third'}],
+  ['T8',{zh:'杀球（成人 / L3+ 少儿）',en:'Smash (adults / kids L3+)'},{zh:'明显下压且入界',en:'Steep and in'}],
+  ['T9',{zh:'连续对拉',en:'Rally count'},{zh:'记录最高连续拍数',en:'Max consecutive shots'}]],
+ doubles:[
+  ['DT1',{zh:'反手网前发球（双打）',en:'Backhand low serve (doubles)'},{zh:'过网 <20cm（少儿 <30cm），落前发球线后 50cm 内',en:'Clears net by <20cm (kids <30cm), within 50cm of short line'}],
+  ['DT2',{zh:'平高球发球',en:'Flick serve'},{zh:'过接发者拍头且入界',en:"Over receiver's reach and in"}],
+  ['DT3',{zh:'接发球',en:'Return of short serve'},{zh:'落 3 个目标区且不起高',en:'Into 3 target zones, not lifted'}],
+  ['DT4',{zh:'平抽对抽',en:'Drive exchange'},{zh:'记录最高连续拍数',en:'Max consecutive shots'}],
+  ['DT5',{zh:'接杀防守',en:'Smash defence'},{zh:'挡网 / 挑底线 / 反抽到位',en:'Quality block, deep lift or counter'}],
+  ['DT6',{zh:'前场封网',en:'Net interception'},{zh:'下压且入界',en:'Downward and in'}],
+  ['DT7',{zh:'连续杀球（成人 / L3+ 少儿）',en:'Repeated smash (adults / kids L3+)'},{zh:'杀球下压且回位',en:'Downward, with recovery'}]],
+};
+const BANDS = [[0,25,1],[26,45,2],[46,60,3],[61,75,4],[76,88,5],[89,100,6]];
+const WEIGHTS = {singles:{p:20,t:50,m:30}, doubles:{p:15,t:45,m:40}};
+
+/* ---------- State ---------- */
+const store = {
+  get(k,d){try{const v=localStorage.getItem('bp:'+k);return v===null?d:JSON.parse(v)}catch(e){return d}},
+  set(k,v){try{localStorage.setItem('bp:'+k,JSON.stringify(v))}catch(e){}}
+};
+const S = {lang:store.get('lang','bi'), fmt:store.get('fmt','singles'), track:store.get('track','kids'),
+  level:store.get('level',1), tab:'levels', domain:'all', calc:{p:2.5,t:50,m:2.5,singles:0}};
+let ratings = store.get('ratings',{});
+let openSkill = null;
+
+/* ---------- Text helpers ---------- */
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function T(o){ if(!o) return ''; const z=esc(o.zh), e=esc(o.en);
+  if(S.lang==='zh') return z; if(S.lang==='en') return e; return z===e ? z : `${z}<span class="en">${e}</span>`; }
+function TI(o){ if(!o) return ''; const z=esc(o.zh), e=esc(o.en);
+  if(S.lang==='zh') return z; if(S.lang==='en') return e; return z===e ? z : `${z} <span class="inl-en">${e}</span>`; }
+function TP(o){ return S.lang==='en' ? o.en : o.zh; } /* plain, for attributes */
+const u = k => TI(U[k]);
+const domKey = code => code.match(/^[A-Z]+/)[0];
+const levelData = () => DATA[S.fmt][S.track].levels['L'+S.level];
+const rKey = code => `${S.fmt}/${S.track}/${code}`;
+const getR = code => ratings[rKey(code)] || 0;
+const needApplied = n => n <= 2 ? 2 : 3;
+const stars = n => '★'.repeat(n);
+
+function progressFor(n){
+  const sk = DATA[S.fmt][S.track].levels['L'+n].skills;
+  const c3 = sk.filter(s => getR(s.code) >= 3).length;
+  const c4 = sk.filter(s => getR(s.code) >= 4).length;
+  return {total:sk.length, c3, c4, need:needApplied(n), ready: c3 === sk.length && c4 >= needApplied(n)};
+}
+
+/* ---------- Render: chrome ---------- */
+function renderChrome(){
+  document.documentElement.lang = S.lang==='en' ? 'en' : 'zh-CN';
+  document.getElementById('appTitle').textContent = TP(U.title);
+  document.getElementById('appSub').textContent = S.lang==='en' ? U.sub.en : U.sub.zh;
+  document.querySelectorAll('.lang button').forEach(b => b.setAttribute('aria-pressed', b.dataset.lang===S.lang));
+  const seg = (id, key, opts) => {
+    document.getElementById(id).innerHTML = opts.map(o =>
+      `<button id="${id}-${o}" data-${key}="${o}" aria-pressed="${S[key]===o}">${S.lang==='bi'?`${esc(U[o].zh)}<span class="inl-en">${esc(U[o].en)}</span>`:TI(U[o])}</button>`).join('');
+  };
+  seg('fmtSeg','fmt',['singles','doubles']);
+  seg('trackSeg','track',['kids','adults']);
+  const ic = {
+    levels:'<svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M4 12h16M12 3v18"/></svg>',
+    guide:'<svg viewBox="0 0 24 24"><path d="M12 3l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.8z"/></svg>',
+    assess:'<svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M8.5 11l2 2 4-4M8.5 17h7"/></svg>'};
+  document.getElementById('tabs').innerHTML = [['levels','tLevels'],['guide','tGuide'],['assess','tAssess']].map(([k,l]) =>
+    `<button id="tab-${k}" data-tab="${k}" ${S.tab===k?'aria-current="page"':''}>${ic[k]}<span>${esc(U[l].zh===U[l].en||S.lang!=='bi'?TP(U[l]):U[l].zh)}</span>${S.lang==='bi'?`<span class="inl-en">${esc(U[l].en)}</span>`:''}</button>`).join('');
+}
+
+/* ---------- Render: levels tab ---------- */
+function ringSVG(p){
+  const r=23, c=2*Math.PI*r, pct = p.total ? p.c3/p.total : 0;
+  return `<svg class="ring" viewBox="0 0 54 54" aria-hidden="true"><circle class="bgc" cx="27" cy="27" r="${r}"/>
+    <circle class="fgc" cx="27" cy="27" r="${r}" stroke-dasharray="${(pct*c).toFixed(1)} ${c.toFixed(1)}" ${pct?"":"hidden"} transform="rotate(-90 27 27)"/>
+    <text x="27" y="32" text-anchor="middle">${p.c3}/${p.total}</text></svg>`;
+}
+function renderLevels(){
+  const L = LEVELS[S.level-1], d = levelData(), kids = S.track==='kids', dbl = S.fmt==='doubles';
+  const rail = LEVELS.map(l => { const p = progressFor(l.n);
+    return `<button class="tile" id="lvl-${l.n}" data-level="${l.n}" aria-pressed="${S.level===l.n}">
+      <div class="ln">L${l.n}${kids?`<span class="bdg">${l.e}</span>`:''}</div>
+      <div class="nm">${kids ? TI(dbl?l.kd:l.ks) : TI(l)}</div>
+      <span class="pbar" style="width:${p.total?Math.round(p.c3/p.total*100):0}%"></span></button>`; }).join('');
+  const facts = [];
+  facts.push(`<span class="fact">${TI(U.profile)} · <b>${TI(dbl?L.dp:(kids?L:L.ap))}</b></span>`);
+  if(kids) facts.push(`<span class="fact">${TI(U.age)} · <b>${L.age} ${TP(U.years)}</b></span>`);
+  facts.push(`<span class="fact">${TI(U.dur)} · <b>${L.dur} ${TP(U.months)}</b></span>`);
+  if(dbl && L.entry) facts.push(`<span class="fact">${TI(U.entry)} · <b>L${L.entry}+</b></span>`);
+  if(!dbl) facts.push(`<span class="fact">${TI(U.equiv)} · <b>${TI(L.eq)}</b></span>`);
+
+  const p = progressFor(S.level);
+  const doms = [...new Set(d.skills.map(s => domKey(s.code)))];
+  if(S.domain!=='all' && !doms.includes(S.domain)) S.domain='all';
+  const shown = d.skills.filter(s => S.domain==='all' || domKey(s.code)===S.domain);
+  const core = shown.filter(s => s.group!=='mixed'), mixed = shown.filter(s => s.group==='mixed');
+  const row = s => { const dk = domKey(s.code), r = getR(s.code);
+    return `<button class="skill" data-skill="${s.code}" id="sk-${s.code}" style="--dc:var(--d${DOMAINS[dk].c})">
+      <span class="code">${s.code}</span>
+      <span class="nm">${T(s)}<span class="dm">${TI(DOMAINS[dk])}</span></span>
+      <span class="meter" aria-label="${r} / 4">${[1,2,3,4].map(i=>`<i class="${i<=r?'on':''}"></i>`).join('')}</span></button>`; };
+
+  return `<div class="rail" id="rail">${rail}</div>
+  <article class="panel">
+    <div class="ptitle"><div class="big">L${L.n}</div><div>
+      <h2>${kids ? `${L.e} ${TI(dbl?L.kd:L.ks)}` : TI(L)}</h2>
+      <div class="sub">${kids ? TI(L) : TI(dbl?U.doubles:U.singles)} · ${TI(U[S.track])}</div></div></div>
+    <div class="facts">${facts.join('')}</div>
+    ${d.goal?`<div class="blk"><h3>${u('goal')}</h3><p>${T(d.goal)}</p></div>`:''}
+    ${d.quest?`<div class="blk quest"><h3>${u('quest')}</h3><p>${T(d.quest)}</p></div>`:''}
+    <div class="ready">${ringSVG(p)}<div class="rl"><b>${TI(U.myProg)}</b><br>
+      <b>${p.c3}/${p.total}</b> ${TP(U.atC)} · <b>${p.c4}</b> ${TP(U.at4)}${p.need}${TP(U.at4b)}<br>
+      <span class="chip ${p.ready?'ok':'no'}">${TI(p.ready?U.readyY:U.readyN)}</span></div></div>
+  </article>
+  <div class="sec-h"><h2>${u('skills')} <small>(${d.skills.length})</small></h2><small>${TP(U.tapHint)}</small></div>
+  <div class="chips">${['all',...doms].map(k=>`<button class="fchip" id="dom-${k}" data-domain="${k}" aria-pressed="${S.domain===k}">${k==='all'?TI(U.all):TI(DOMAINS[k])}</button>`).join('')}</div>
+  <div class="list">${core.map(row).join('')}</div>
+  ${mixed.length?`<div class="mixed-h">${TI(U.mixed)}</div><div class="list">${mixed.map(row).join('')}</div>`:''}`;
+}
+
+/* ---------- Render: guide tab ---------- */
+function renderGuide(){
+  const dbl = S.fmt==='doubles', notes = DATA[S.fmt][S.track].notes;
+  return `<div class="card"><h2>${u('grades')}</h2>
+    ${GRADES.map(g=>`<div class="grade-row"><div><div class="gnum">${g.n}</div><div class="stars">${stars(g.n)}</div></div>
+      <div><b>${TI(g)}</b><div>${T(dbl?g.d:g.s)}</div></div></div>`).join('')}</div>
+  <div class="card"><h2>${u('rules')} · ${TI(dbl?U.doubles:U.singles)}</h2><ul class="ul">${RULES[S.fmt].map(r=>`<li>${T(r)}</li>`).join('')}</ul></div>
+  <div class="card"><h2>${u('notes')} · ${TI(U[S.track])}</h2><ul class="ul">${notes.map(n=>`<li>${T(n)}</li>`).join('')}</ul>
+    <div id="resetBox" style="margin-top:14px">${resetUI(false)}</div></div>`;
+}
+function resetUI(confirming){
+  return confirming
+    ? `<div class="confirm"><span style="flex:1">${TI(U.resetQ)}</span><button class="btn pri" id="resetYes">${TI(U.yes)}</button><button class="btn" id="resetNo">${TI(U.no)}</button></div>`
+    : `<button class="btn" id="resetAsk" style="width:100%">${TI(U.reset)}</button>`;
+}
+
+/* ---------- Render: assessment tab ---------- */
+function calcResult(){
+  const w = WEIGHTS[S.fmt], c = S.calc;
+  const total = Math.round(c.p/4*w.p + c.t/100*w.t + c.m/4*w.m);
+  let lv = BANDS.find(b => total>=b[0] && total<=b[1])[2];
+  let capped = false;
+  if(S.fmt==='doubles' && c.singles && lv > c.singles+1){ lv = c.singles+1; capped = true; }
+  return {total, lv, capped};
+}
+function renderAssess(){
+  const dbl = S.fmt==='doubles', w = WEIGHTS[S.fmt], r = calcResult();
+  return `<div class="card"><h2>${u('flow')} · ${TI(dbl?U.doubles:U.singles)}</h2>
+    <ol class="steps">${FLOW[S.fmt].map(f=>`<li><div>${T(f)}</div></li>`).join('')}</ol></div>
+  ${dbl?'':`<div class="card"><h2>${u('phys')} · ${TI(U[S.track])}</h2><div class="tbl-wrap"><table>
+    <tr><th>#</th><th>${TI(U.test)}</th></tr>${PHYS[S.track].map(p=>`<tr><td class="num">${p[0]}</td><td>${T(p[1])}</td></tr>`).join('')}</table></div>
+    <p class="note">${TI({zh:'每项按 1–4 分评分。',en:'Each item is scored 1–4.'})}</p></div>`}
+  <div class="card"><h2>${u('stations')}</h2><div class="tbl-wrap"><table>
+    <tr><th>#</th><th>${TI(U.test)}</th><th>${TI(U.crit)}</th></tr>
+    ${STATIONS[S.fmt].map(s=>`<tr><td class="num">${s[0]}</td><td>${T(s[1])}</td><td>${T(s[2])}</td></tr>`).join('')}</table></div></div>
+  <div class="card"><h2>${u('calc')}</h2><div class="calc">
+    <label for="c-p"><span class="row"><span>${TI(U.phys)} <small class="inl-en">(${w.p}%)</small></span><output id="o-p">${S.calc.p.toFixed(1)} / 4</output></span>
+      <input type="range" id="c-p" min="1" max="4" step="0.1" value="${S.calc.p}"></label>
+    <label for="c-t"><span class="row"><span>${TI({zh:'技术站平均成功率',en:'Average station success'})} <small class="inl-en">(${w.t}%)</small></span><output id="o-t">${S.calc.t}%</output></span>
+      <input type="range" id="c-t" min="0" max="100" step="5" value="${S.calc.t}"></label>
+    <label for="c-m"><span class="row"><span>${TI({zh:'比赛观察均分',en:'Match observation average'})} <small class="inl-en">(${w.m}%)</small></span><output id="o-m">${S.calc.m.toFixed(1)} / 4</output></span>
+      <input type="range" id="c-m" min="1" max="4" step="0.1" value="${S.calc.m}"></label>
+    ${dbl?`<label for="c-s"><span class="row"><span>${TI({zh:'当前单打级别',en:'Current singles level'})}</span><output id="o-s">${S.calc.singles?('L'+S.calc.singles):'—'}</output></span>
+      <input type="range" id="c-s" min="0" max="6" step="1" value="${S.calc.singles}"></label>`:''}
+    <div class="result" id="calcRes">${calcResHTML(r)}</div></div></div>
+  <div class="card"><h2>${u('place')}</h2><div class="tbl-wrap"><table>
+    <tr><th>${TI(U.band)}</th><th>${TI(U.lvl)}</th></tr>
+    ${BANDS.map(b=>`<tr><td class="num">${b[0]}–${b[1]}</td><td>L${b[2]} · ${TI(LEVELS[b[2]-1])}</td></tr>`).join('')}</table></div>
+    <p class="note">${T(dbl?{zh:'最终级别 = min（评分建议级别，单打级别 + 1），教练可再调整 ±1 级。',en:'Final level = min(score-based level, singles level + 1). The head coach may adjust ±1.'}
+      :{zh:'分数只作参考，教练可调整 ±1 级；有明显短板时就低定级。',en:'The score is a guide. The head coach may adjust ±1, and places lower if there is a major gap.'})}</p></div>`;
+}
+function calcResHTML(r){
+  return `<div class="big">L${r.lv}</div><div><b>${TI(U.suggested)}</b><br>${TI(U.score)} <b>${r.total}</b> / 100 · ${TI(LEVELS[r.lv-1])}
+   ${r.capped?`<br><small>${TI({zh:'已按单打级别 +1 封顶',en:'Capped at singles level + 1'})}</small>`:''}</div>`;
+}
+
+/* ---------- Bottom sheet ---------- */
+function renderSheet(){
+  const sheet = document.getElementById('sheet'), d = levelData();
+  const s = d.skills.find(x => x.code===openSkill); if(!s) return;
+  const dk = domKey(s.code), r = getR(s.code), dbl = S.fmt==='doubles';
+  const idx = d.skills.indexOf(s), nxt = d.skills[(idx+1) % d.skills.length];
+  sheet.innerHTML = `<div class="grab"></div>
+   <div class="sh"><span class="code" style="--dc:var(--d${DOMAINS[dk].c})">${s.code}</span>
+     <div style="flex:1;min-width:0"><h2 id="sheetTitle">${T(s)}</h2><div class="dm">${TI(DOMAINS[dk])} · L${S.level} · ${TI(U[S.fmt])} · ${TI(U[S.track])}</div></div>
+     <button class="xbtn" id="sheetClose" aria-label="${TP(U.close)}"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+   <div class="sb"><p class="hint">${TP(U.sheetHint)}</p><div class="ladder">
+   ${GRADES.map(g => { const c = s.grades[g.n], assumed = !c;
+     return `<button class="rung ${g.n<=r?'reached':''} ${g.n===r?'current':''} ${assumed?'assumed':''}" data-me="${esc(TP(U.me))}" data-grade="${g.n}" id="g-${g.n}" ${assumed?'disabled':''}>
+       <div><div class="gnum">${g.n}</div><div class="stars">${stars(g.n)}</div></div>
+       <div><div class="gname">${TI(g)}</div><div class="gdef">${TP(dbl?g.d:g.s)}</div>
+       <div class="crit"><small>${TP(U.criterion)}</small>${assumed?TI(U.assumed):T(c)}</div></div></button>`; }).join('')}
+   </div><div class="acts"><button class="btn" id="clearR">${TI(U.clear)}</button>
+     <button class="btn pri" id="nextSk" data-next="${nxt.code}">${TI(U.next)} →</button></div></div>`;
+}
+function openSheet(code){
+  openSkill = code; renderSheet();
+  const sh = document.getElementById('sheet'), sc = document.getElementById('scrim');
+  sh.hidden = false; sc.hidden = false;
+  requestAnimationFrame(() => { sh.classList.add('show'); sc.classList.add('show'); document.getElementById('sheetClose').focus(); });
+}
+function closeSheet(){
+  const sh = document.getElementById('sheet'), sc = document.getElementById('scrim');
+  sh.classList.remove('show'); sc.classList.remove('show');
+  const back = openSkill; openSkill = null;
+  setTimeout(() => { sh.hidden = true; sc.hidden = true; }, 220);
+  renderView(); const el = document.getElementById('sk-'+back); if(el) el.focus({preventScroll:true});
+}
+
+/* ---------- Main render ---------- */
+function renderView(){
+  const v = document.getElementById('view');
+  v.innerHTML = S.tab==='levels' ? renderLevels() : S.tab==='guide' ? renderGuide() : renderAssess();
+  if(S.tab==='levels'){ const t = document.getElementById('lvl-'+S.level), rail = document.getElementById('rail');
+    if(t && rail) rail.scrollLeft = Math.max(0, t.offsetLeft - rail.clientWidth/2 + t.clientWidth/2); }
+}
+function renderAll(){ renderChrome(); renderView(); if(openSkill) renderSheet(); }
+
+/* ---------- Events ---------- */
+document.addEventListener('click', e => {
+  const b = e.target.closest('button,[data-x]'); if(!b){ return; }
+  if(b.dataset.lang){ S.lang=b.dataset.lang; store.set('lang',S.lang); renderAll(); return; }
+  if(b.dataset.fmt){ S.fmt=b.dataset.fmt; store.set('fmt',S.fmt); S.domain='all'; renderAll(); return; }
+  if(b.dataset.track){ S.track=b.dataset.track; store.set('track',S.track); S.domain='all'; renderAll(); return; }
+  if(b.dataset.tab){ S.tab=b.dataset.tab; renderChrome(); renderView(); window.scrollTo({top:0}); return; }
+  if(b.dataset.level){ S.level=+b.dataset.level; store.set('level',S.level); S.domain='all'; renderView(); return; }
+  if(b.dataset.domain){ S.domain=b.dataset.domain; renderView(); return; }
+  if(b.dataset.skill){ openSheet(b.dataset.skill); return; }
+  if(b.dataset.grade){ const g=+b.dataset.grade, k=rKey(openSkill); ratings[k] = ratings[k]===g ? g-1 : g;
+    if(!ratings[k]) delete ratings[k]; store.set('ratings',ratings); renderSheet(); return; }
+  if(b.id==='clearR'){ delete ratings[rKey(openSkill)]; store.set('ratings',ratings); renderSheet(); return; }
+  if(b.id==='nextSk'){ openSkill=b.dataset.next; renderSheet(); return; }
+  if(b.id==='sheetClose'){ closeSheet(); return; }
+  if(b.id==='resetAsk'){ document.getElementById('resetBox').innerHTML = resetUI(true); return; }
+  if(b.id==='resetNo'){ document.getElementById('resetBox').innerHTML = resetUI(false); return; }
+  if(b.id==='resetYes'){ const pre = `${S.fmt}/${S.track}/`; Object.keys(ratings).forEach(k => k.startsWith(pre) && delete ratings[k]);
+    store.set('ratings',ratings); renderView(); return; }
+});
+document.getElementById('scrim').addEventListener('click', closeSheet);
+document.addEventListener('keydown', e => { if(e.key==='Escape' && openSkill) closeSheet(); });
+document.addEventListener('input', e => {
+  const id = e.target.id; if(!id.startsWith('c-')) return;
+  const v = +e.target.value, k = id.slice(2);
+  if(k==='p'){ S.calc.p=v; document.getElementById('o-p').textContent = v.toFixed(1)+' / 4'; }
+  if(k==='t'){ S.calc.t=v; document.getElementById('o-t').textContent = v+'%'; }
+  if(k==='m'){ S.calc.m=v; document.getElementById('o-m').textContent = v.toFixed(1)+' / 4'; }
+  if(k==='s'){ S.calc.singles=v; document.getElementById('o-s').textContent = v?('L'+v):'—'; }
+  document.getElementById('calcRes').innerHTML = calcResHTML(calcResult());
+});
+/* Swipe down on the sheet header to close */
+(() => { let y0=null; const sh=document.getElementById('sheet');
+  sh.addEventListener('touchstart', e => { if(e.target.closest('.sh,.grab')) y0=e.touches[0].clientY; }, {passive:true});
+  sh.addEventListener('touchend', e => { if(y0!==null && e.changedTouches[0].clientY - y0 > 60) closeSheet(); y0=null; }, {passive:true});
+})();
+
+renderAll();
+</script>
+</body>
+</html>
