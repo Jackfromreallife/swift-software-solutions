@@ -1,0 +1,314 @@
+{
+ "singles": {
+  "kids": {
+   "notes": [
+    {
+     "zh": "每节课 ≥ 50% 时间以游戏形式进行（L1–L3）。",
+     "en": "≥ 50% of each session is game-based (L1–L3)."
+    },
+    {
+     "zh": "8 岁以下建议使用短柄拍（53–58cm）、低网（1.3–1.4m）、迷你场地。",
+     "en": "Under 8: short racket (53–58cm), lower net (1.3–1.4m), mini court."
+    },
+    {
+     "zh": "L1–L3 不做杀球大力量专项，不做负重训练。",
+     "en": "No heavy smash or weighted strength work at L1–L3."
+    },
+    {
+     "zh": "用徽章、星星卡、闯关等方式激励。",
+     "en": "Motivate with badges, star cards and \"quest\" challenges."
+    },
+    {
+     "zh": "每 8 周给家长一次书面反馈。",
+     "en": "Written parent feedback every 8 weeks."
+    }
+   ],
+   "levels": {
+    "L1": {
+     "goal": {
+      "zh": "喜欢羽毛球，建立手眼协调和基本移动能力。",
+      "en": "Enjoy badminton; build hand-eye coordination and basic movement."
+     },
+     "quest": {
+      "zh": "颠球 10 次 + 发球过网 5/10 + 与教练连续对打 5 拍。",
+      "en": "Keep-ups ×10 + serve over net 5/10 + 5-shot rally with coach."
+     }
+    },
+    "L2": {
+     "goal": {
+      "zh": "能与同伴连续对打，认识基本球路和场地。",
+      "en": "Rally with a partner; learn basic shots and court lines."
+     },
+     "quest": {
+      "zh": "与同伴连续对拉 15 拍；高远发球进后场 6/10。",
+      "en": "15-shot rally with a peer; high serve to rear court 6/10."
+     }
+    },
+    "L3": {
+     "goal": {
+      "zh": "动作基本规范，能打满后场，懂计分，开始打比赛。",
+      "en": "Correct basic technique, clear to baseline, know scoring, start playing matches."
+     },
+     "quest": {
+      "zh": "打一场 11 分正式比赛并独立计分；高远球到底线 1/3 7/10。",
+      "en": "Play an 11-point match with self-scoring; clear to rear third 7/10."
+     }
+    },
+    "L4": {
+     "goal": {
+      "zh": "四方球稳定，掌握头顶与反手过渡，有初步战术。",
+      "en": "Consistent 4-corner game, round-the-head & backhand, basic tactics."
+     },
+     "quest": {
+      "zh": "四方步法多球 20 球；参加一次俱乐部内部赛。",
+      "en": "4-corner multi-feed 20 shuttles; play one in-club tournament."
+     }
+    },
+    "L5": {
+     "goal": {
+      "zh": "有进攻武器，能打对抗，开始参加地区比赛。",
+      "en": "Have attacking weapons; play under pressure; enter local competitions."
+     },
+     "quest": {
+      "zh": "参加一次地区青少年比赛，赛后与教练一起写出 2 个对手弱点。",
+      "en": "Play one local junior event and write down 2 opponent weaknesses with your coach."
+     }
+    },
+    "L6": {
+     "goal": {
+      "zh": "全面技术 + 稳定战术 + 系统体能，冲击省市级比赛。",
+      "en": "Complete technique, consistent tactics, structured fitness; target provincial events."
+     },
+     "quest": {
+      "zh": "完成一次赛前计划 + 视频复盘，并在省市级比赛中执行。",
+      "en": "Write a game plan, play it in a regional event, and review the video."
+     }
+    }
+   }
+  },
+  "adults": {
+   "notes": [
+    {
+     "zh": "成人常见问题是\"野路子\"动作，**纠错优先于加新技术**。",
+     "en": "Adults often have self-taught habits — **correction comes before new skills**."
+    },
+    {
+     "zh": "每节课包含 10–15 分钟热身（动态拉伸、肩袖激活）。",
+     "en": "Every session has 10–15 min warm-up (dynamic stretching, rotator-cuff activation)."
+    },
+    {
+     "zh": "重点防伤部位：**肩、肘（网球肘）、膝、跟腱、腰**。",
+     "en": "Injury focus: **shoulder, elbow, knee, Achilles, lower back**."
+    },
+    {
+     "zh": "40 岁以上学员：起跳、急停类训练量减半，增加恢复。",
+     "en": "40+: halve jump/stop-start volume, add recovery time."
+    },
+    {
+     "zh": "用视频对比（入学 vs 每 8 周）帮助成人看到进步。",
+     "en": "Use video comparison (intake vs every 8 weeks) to show progress."
+    }
+   ],
+   "levels": {
+    "L1": {
+     "goal": {
+      "zh": "正确握拍和基本击球框架，能简单对打。",
+      "en": "Correct grip and basic stroke shape; simple rallies."
+     },
+     "quest": null
+    },
+    "L2": {
+     "goal": {
+      "zh": "纠正错误动作，掌握基本球路，认识单打规则。",
+      "en": "Fix bad habits, learn basic shots, know singles rules."
+     },
+     "quest": null
+    },
+    "L3": {
+     "goal": {
+      "zh": "规范步法，后场技术成套，能打完整比赛。",
+      "en": "Structured footwork, full rear-court set, play full matches."
+     },
+     "quest": null
+    },
+    "L4": {
+     "goal": {
+      "zh": "四方球稳定、反手可用、能打攻防转换。",
+      "en": "Consistent 4-corner game, usable backhand, attack-defence transitions."
+     },
+     "quest": null
+    },
+    "L5": {
+     "goal": {
+      "zh": "有得分手段和比赛计划，参加地区业余比赛。",
+      "en": "Point-winning weapons and game plans; local amateur competition."
+     },
+     "quest": null
+    },
+    "L6": {
+     "goal": {
+      "zh": "全面技术、稳定战术与系统体能，能参加高水平业余比赛。",
+      "en": "Complete technique, consistent tactics and structured fitness for top amateur events."
+     },
+     "quest": null
+    }
+   }
+  }
+ },
+ "doubles": {
+  "kids": {
+   "notes": [
+    {
+     "zh": "L1–L3 以\"合作得分\"游戏为主，如两人合作连续击球计数。",
+     "en": "L1–L3 focus on cooperative games, e.g. partner rally counts."
+    },
+    {
+     "zh": "每次课**轮换搭档**，培养与不同人配合和社交能力。",
+     "en": "**Rotate partners** every session to build adaptability and social skills."
+    },
+    {
+     "zh": "L4 之前前后场都要练，不固定分工。",
+     "en": "No fixed front/rear roles before L4."
+    },
+    {
+     "zh": "强调礼貌与鼓励：失误后击掌、说\"没关系 / Nice try\"。",
+     "en": "Emphasise respect: high-five and say \"没关系 / Nice try\" after errors."
+    },
+    {
+     "zh": "L1–L3 不做混双分工训练。",
+     "en": "No mixed-doubles role training at L1–L3."
+    }
+   ],
+   "levels": {
+    "L1": {
+     "goal": {
+      "zh": "喜欢和同伴一起打球，学会轮流和沟通。",
+      "en": "Enjoy playing with a partner; learn to take turns and communicate."
+     },
+     "quest": {
+      "zh": "与同伴合作连续击球 10 拍；游戏中每球都喊口令。",
+      "en": "10-shot cooperative rally with a partner; call every shuttle in a game."
+     }
+    },
+    "L2": {
+     "goal": {
+      "zh": "知道双打规则与场地，会基本站位。",
+      "en": "Know doubles rules and court; basic positioning."
+     },
+     "quest": {
+      "zh": "打一局 7 分双打，发球站位全对；网前发球 6/10。",
+      "en": "Play a 7-point doubles game with correct serving positions; low serve 6/10."
+     }
+    },
+    "L3": {
+     "goal": {
+      "zh": "会\"进攻前后、防守左右\"，会双打计分与轮换。",
+      "en": "\"Front-back to attack, side-by-side to defend\"; doubles scoring and service order."
+     },
+     "quest": {
+      "zh": "打一场 11 分双打，独立计分且无发球顺序错误。",
+      "en": "11-point doubles match, self-scored with no service-order errors."
+     }
+    },
+    "L4": {
+     "goal": {
+      "zh": "攻守转换和轮转，开始尝试主动进攻。",
+      "en": "Attack-defence transitions and rotation; start attacking deliberately."
+     },
+     "quest": {
+      "zh": "与 2 位不同搭档各打一场 11 分比赛，全程有口令、无站位混乱。",
+      "en": "Play an 11-point match with each of 2 partners, calling every shuttle with no position clashes."
+     }
+    },
+    "L5": {
+     "goal": {
+      "zh": "前后场有分工，有发接发套路，参加地区比赛。",
+      "en": "Clear front/rear roles, serve-return plays; local competition."
+     },
+     "quest": {
+      "zh": "与固定搭档参加一次地区双打比赛，执行 1 套发接发套路。",
+      "en": "Enter a local doubles event with a regular partner and use one serve-return play."
+     }
+    },
+    "L6": {
+     "goal": {
+      "zh": "高速轮转、连续进攻与高质量防守，冲击省市级双打比赛。",
+      "en": "High-speed rotation, attack chains and strong defence for provincial doubles events."
+     },
+     "quest": {
+      "zh": "组合写出赛前计划并在省市级比赛中执行，赛后一起复盘。",
+      "en": "Write a pair game plan, play it at a provincial event, and review it together."
+     }
+    }
+   }
+  },
+  "adults": {
+   "notes": [
+    {
+     "zh": "成人业余球员大多以双打为主，可作为主线框架。",
+     "en": "Most adult amateurs mainly play doubles; this can be their main track."
+    },
+    {
+     "zh": "常见问题：两人站一起、乱起高球、中路让球 —— **先纠站位再练技术**。",
+     "en": "Common issues: standing together, needless lifts, leaving middle shuttles — **fix positioning before technique**."
+    },
+    {
+     "zh": "平抽、封网、急停较多，注意**肩、肘、膝、跟腱**。",
+     "en": "Lots of drives, interceptions and sudden stops — watch **shoulder, elbow, knee, Achilles**."
+    },
+    {
+     "zh": "L5 起可选**混双模块**。",
+     "en": "Optional **mixed doubles module** from L5."
+    },
+    {
+     "zh": "40 岁以上：减少连续杀球和高强度多球组数。",
+     "en": "40+: reduce repeated-smash and high-intensity multi-feed sets."
+    }
+   ],
+   "levels": {
+    "L1": {
+     "goal": {
+      "zh": "认识双打场地与规则，能在双打中参与对打。",
+      "en": "Know doubles court and rules; take part in doubles rallies."
+     },
+     "quest": null
+    },
+    "L2": {
+     "goal": {
+      "zh": "改掉\"两人站一起\"，学会基本前后/左右站位。",
+      "en": "Stop \"standing together\"; learn front-back and side-by-side."
+     },
+     "quest": null
+    },
+    "L3": {
+     "goal": {
+      "zh": "主动下压意识，能接杀，能打完整双打比赛。",
+      "en": "\"Keep it down\" mindset, defend smashes, play full doubles matches."
+     },
+     "quest": null
+    },
+    "L4": {
+     "goal": {
+      "zh": "流畅轮转，主动抢攻，有基本战术。",
+      "en": "Smooth rotation, take the attack, basic tactics."
+     },
+     "quest": null
+    },
+    "L5": {
+     "goal": {
+      "zh": "前后场分工清楚，有发接发套路，参加地区业余双打比赛。",
+      "en": "Clear front/rear roles and serve-return plays; enter local amateur doubles events."
+     },
+     "quest": null
+    },
+    "L6": {
+     "goal": {
+      "zh": "高速轮转与连续进攻，组合有针对性战术和复盘习惯。",
+      "en": "High-speed rotation and attack chains, with opponent-specific plans and regular review."
+     },
+     "quest": null
+    }
+   }
+  }
+ }
+}
